@@ -1,18 +1,14 @@
+'use client'
+
+import Link from 'next/link';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import React, { useState, Dispatch, useCallback } from 'react';
 import { FormControl, Box, Input, Button } from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 
-import { LoginPageTypeEnum } from '@/constants/user';
-import type { UserResType } from '@/global/support/api/userRes.d';
 import { useSendCode } from '@/web/support/user/hooks/useSendCode';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
 
-interface Props {
-  setPageType: Dispatch<`${LoginPageTypeEnum}`>;
-  loginSuccess: (e: UserResType) => void;
-}
 
 interface RegisterType {
   username: string;
@@ -21,36 +17,29 @@ interface RegisterType {
   password2: string;
 }
 
-const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
+const RegisterForm = () => {
   const { toast } = useToast();
-  const { feConfigs } = useSystemStore();
-  const {
-    register,
-    handleSubmit,
-    getValues,
-    trigger,
-    formState: { errors }
-  } = useForm<RegisterType>({
+
+  const { register, handleSubmit, getValues, trigger, formState: { errors } } = useForm<RegisterType>({
     mode: 'onBlur'
   });
 
   const { codeSending, sendCodeText, sendCode, codeCountDown } = useSendCode();
 
-  const onclickSendCode = useCallback(async () => {
+  const onclickSendCode = async () => {
     const check = await trigger('username');
     if (!check) {
       return;
     }
-    await sendCode({
-      username: getValues('username'),
-      type: 'findPassword'
-    });
-  }, [getValues, sendCode, trigger]);
+    // await sendCode({
+    //   username: getValues('username'),
+    //   type: 'findPassword'
+    // });
+  }
 
   const [requesting, setRequesting] = useState(false);
 
-  const onclickFindPassword = useCallback(
-    async ({ username, code, password }: RegisterType) => {
+  const onclickFindPassword = async ({ username, code, password }: RegisterType) => {
       setRequesting(true);
       try {
         // const { token, user } = await postFindPassword({
@@ -70,33 +59,29 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
         });
       }
       setRequesting(false);
-    },
-    [toast]
-  );
+    }
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.keyCode === 13 && !e.shiftKey && !requesting) {
+      handleSubmit(onclickFindPassword)();
+    }
+  }
 
   return (
     <>
       <Box fontWeight={'bold'} fontSize={'2xl'} textAlign={'center'}>
-        找回 {feConfigs?.systemTitle} 账号
+        忘记密码
       </Box>
-      <Box
-        mt={'42px'}
-        onKeyDown={(e) => {
-          if (e.keyCode === 13 && !e.shiftKey && !requesting) {
-            handleSubmit(onclickFindPassword)();
-          }
-        }}
-      >
+      <Box mt={'42px'} onKeyDown={onKeyDown}>
         <FormControl isInvalid={!!errors.username}>
           <Input
             bg={'myGray.50'}
-            placeholder="邮箱/手机号"
+            placeholder="手机号"
             {...register('username', {
-              required: '邮箱/手机号不能为空',
+              required: '手机号不能为空',
               pattern: {
-                value:
-                  /(^1[3456789]\d{9}$)|(^[A-Za-z0-9]+([_\.][A-Za-z0-9]+)*@([A-Za-z0-9\-]+\.)+[A-Za-z]{2,6}$)/,
-                message: '邮箱/手机号格式错误'
+                value: /^(?:(?:\+|00)86)?1[3-9]\d{9}$/,
+                message: '手机号格式有误'
               }
             })}
           ></Input>
@@ -113,9 +98,7 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
             flex={1}
             maxLength={8}
             placeholder="验证码"
-            {...register('code', {
-              required: '验证码不能为空'
-            })}
+            {...register('code', { required: '验证码不能为空' })}
           ></Input>
           <Box
             position={'absolute'}
@@ -124,13 +107,13 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
             fontSize={'sm'}
             {...(codeCountDown > 0
               ? {
-                  color: 'myGray.500'
-                }
+                color: 'myGray.500'
+              }
               : {
-                  color: 'primary.700',
-                  cursor: 'pointer',
-                  onClick: onclickSendCode
-                })}
+                color: 'primary.700',
+                cursor: 'pointer',
+                onClick: onclickSendCode
+              })}
           >
             {sendCodeText}
           </Box>
@@ -178,14 +161,13 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
         <Box
           float={'right'}
           fontSize="sm"
-          mt={2}
+          mt={6}
           mb={'50px'}
           color={'primary.700'}
           cursor={'pointer'}
           _hover={{ textDecoration: 'underline' }}
-          onClick={() => setPageType(LoginPageTypeEnum.passwordLogin)}
         >
-          去登录
+          <Link href={'/login'}>去登录</Link>
         </Box>
       </Box>
     </>

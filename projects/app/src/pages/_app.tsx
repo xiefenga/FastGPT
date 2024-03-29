@@ -17,7 +17,6 @@ import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { change2DefaultLng, setLngStore } from '@/web/common/utils/i18n';
 
 import '@/web/styles/reset.scss';
-import { useChatStore } from '@/web/core/chat/storeChat';
 
 // Create a client
 const queryClient = new QueryClient({

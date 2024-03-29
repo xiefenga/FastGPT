@@ -23,6 +23,13 @@ export interface LoginResType {
   token: string;
 }
 
+export interface CreateUserParams {
+  user_name: string
+  password: string
+  nick_name: string
+  phone: string
+}
+
 export interface UserUpdateParams {
   user_name: string;
   password: string;
