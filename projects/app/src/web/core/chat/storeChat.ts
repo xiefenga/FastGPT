@@ -2,11 +2,9 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { devtools, persist } from 'zustand/middleware';
 
-import { getChatHistories } from '@/web/core/chat/_api';
+import { getChatHistories } from '@/web/core/chat/api';
 import { ChatItemType } from '@fastgpt/global/core/chat/type';
 import { defaultChatData } from '@/global/core/chat/constants';
-import { ChatHistoryItemType, ChatMessageItemType } from '@/types/api/chat';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
 
 export interface ChatItemData {
   id: string;

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { useQuery } from '@tanstack/react-query';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Box, Drawer, DrawerContent, DrawerOverlay, Flex, useDisclosure } from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
@@ -11,18 +11,14 @@ import { useLoading } from '@fastgpt/web/hooks/useLoading';
 import { getErrText } from '@fastgpt/global/common/error/utils';
 import { GPTMessages2Chats } from '@fastgpt/global/core/chat/adapt';
 import { getChatTitleFromChatMessage } from '@fastgpt/global/core/chat/utils';
-import {
-  ChatItemValueTypeEnum,
-  ChatRoleEnum,
-  ChatStatusEnum
-} from '@fastgpt/global/core/chat/constants';
+import { ChatItemValueTypeEnum, ChatRoleEnum, ChatStatusEnum } from '@fastgpt/global/core/chat/constants';
 
 import ChatBox from '@/components/ChatBox';
 import SideBar from '@/components/SideBar';
 import ChatHeader from './components/ChatHeader';
 import { streamFetch } from '@/web/common/api/_fetch';
 import PageContainer from '@/components/PageContainer';
-import { getChatMessages } from '@/web/core/chat/_api';
+import { getChatMessages } from '@/web/core/chat/api';
 import { useChatStore } from '@/web/core/chat/storeChat';
 import { serviceSideProps } from '@/web/common/utils/i18n';
 import { useUserStore } from '@/web/support/user/useUserStore';
@@ -100,7 +96,6 @@ const Chat: React.FC<PageProps> = ({ chatId }) => {
           });
         }
       }
-      console.log(ChatBoxRef.current?.getChatHistories());
       // update chat window
       setChatData((state) => ({
         ...state,
@@ -172,8 +167,15 @@ const Chat: React.FC<PageProps> = ({ chatId }) => {
     },
     [setIsLoading, setChatData, toast, t, router]
   );
+
   // 初始化聊天框
   useQuery(['init', { chatId, histories }], () => {
+    console.log('chatId', chatId)
+    if (forbidRefresh.current) {
+      forbidRefresh.current = false;
+      return null;
+    }
+
     if (!chatId) {
       setCurrentModel(defaultModel);
       ChatBoxRef.current?.resetHistory([]);
@@ -182,11 +184,6 @@ const Chat: React.FC<PageProps> = ({ chatId }) => {
         title: '新对话',
         history: []
       }));
-      return null;
-    }
-
-    if (forbidRefresh.current) {
-      forbidRefresh.current = false;
       return null;
     }
 

@@ -5,16 +5,7 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { Box, Flex, Checkbox } from '@chakra-ui/react';
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useMemo,
-  forwardRef,
-  useImperativeHandle,
-  ForwardedRef,
-  useEffect
-} from 'react';
+import React, { useCallback, useRef, useState, useMemo, forwardRef, useImperativeHandle, ForwardedRef, useEffect } from 'react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import { getErrText } from '@fastgpt/global/common/error/utils';
@@ -28,11 +19,7 @@ import type { ChatHistoryItemResType } from '@fastgpt/global/core/chat/type.d';
 import { SseResponseEventEnum } from '@fastgpt/global/core/module/runtime/constants';
 import { ChatItemValueTypeEnum, ChatRoleEnum } from '@fastgpt/global/core/chat/constants';
 import { DispatchNodeResponseKeyEnum } from '@fastgpt/global/core/module/runtime/constants';
-import type {
-  AIChatItemValueItemType,
-  ChatSiteItemType,
-  UserChatItemValueItemType
-} from '@fastgpt/global/core/chat/type.d';
+import type { AIChatItemValueItemType, ChatSiteItemType, UserChatItemValueItemType } from '@fastgpt/global/core/chat/type.d';
 
 import MyTooltip from '../MyTooltip';
 import MessageInput from './MessageInput';
@@ -40,23 +27,11 @@ import { textareaMinH } from './constants';
 import ChatItem from './components/ChatItem';
 import ChatBoxDivider from '../core/chat/Divider';
 import { formatChatValue2InputType } from './utils';
-import { postQuestionGuide } from '@/web/core/ai/api';
 import { useChatStore } from '@/web/core/chat/storeChat';
 import type { AdminMarkType } from './SelectMarkCollection';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { EventNameEnum, eventBus } from '@/web/common/utils/eventbus';
-import {
-  closeCustomFeedback,
-  updateChatAdminFeedback,
-  updateChatUserFeedback
-} from '@/web/core/chat/api';
-import type {
-  generatingMessageProps,
-  StartChatFnProps,
-  ComponentRef,
-  ChatBoxInputType,
-  ChatBoxInputFormType
-} from './type.d';
+import type { generatingMessageProps, StartChatFnProps, ComponentRef, ChatBoxInputType, ChatBoxInputFormType } from './type.d';
 
 const ResponseTags = dynamic(() => import('./ResponseTags'));
 const FeedbackModal = dynamic(() => import('./FeedbackModal'));
@@ -335,38 +310,6 @@ const ChatBox = (
     [setValue]
   );
 
-  // create question guide
-  const createQuestionGuide = useCallback(
-    async ({ history }: { history: ChatSiteItemType[] }) => {
-      if (!questionGuide || chatController.current?.signal?.aborted) {
-        return;
-      }
-
-      try {
-        const abortSignal = new AbortController();
-        questionGuideController.current = abortSignal;
-
-        const result = await postQuestionGuide(
-          {
-            messages: chats2GPTMessages({ messages: history, reserveId: false }).slice(-6),
-            shareId,
-            outLinkUid,
-            teamId,
-            teamToken
-          },
-          abortSignal
-        );
-        if (Array.isArray(result)) {
-          setQuestionGuide(result);
-          setTimeout(() => {
-            scrollToBottom();
-          }, 100);
-        }
-      } catch (error) {}
-    },
-    [questionGuide, shareId, outLinkUid, teamId, teamToken]
-  );
-
   /**
    * user confirm send prompt
    */
@@ -458,11 +401,7 @@ const ChatBox = (
           chatController.current = abortSignal;
 
           const messages = chats2GPTMessages({ messages: newChatList, reserveId: true });
-          const {
-            responseData,
-            responseText,
-            isNewChat = false
-          } = await onStartChat({
+          const { responseData, responseText, isNewChat = false } = await onStartChat({
             chatList: newChatList,
             messages,
             controller: abortSignal,
@@ -471,7 +410,6 @@ const ChatBox = (
           });
 
           isNewChatReplace.current = isNewChat;
-
           // set finish status
           setChatHistories((state) =>
             state.map((item, index) => {
@@ -486,23 +424,6 @@ const ChatBox = (
             })
           );
           setTimeout(() => {
-            createQuestionGuide({
-              history: newChatList.map((item, i) =>
-                i === newChatList.length - 1
-                  ? {
-                      ...item,
-                      value: [
-                        {
-                          type: ChatItemValueTypeEnum.text,
-                          text: {
-                            content: responseText
-                          }
-                        }
-                      ]
-                    }
-                  : item
-              )
-            });
             generatingScroll();
             isPc && TextareaDom.current?.focus();
           }, 100);
@@ -537,7 +458,6 @@ const ChatBox = (
     [
       currentModel,
       chatHistories,
-      createQuestionGuide,
       generatingMessage,
       generatingScroll,
       handleSubmit,
@@ -659,16 +579,16 @@ const ChatBox = (
               : chatItem
           )
         );
-        try {
-          updateChatUserFeedback({
-            appId,
-            chatId,
-            chatItemId: chat.dataId,
-            shareId,
-            outLinkUid,
-            userGoodFeedback: isGoodFeedback ? undefined : 'yes'
-          });
-        } catch (error) {}
+        // try {
+          // updateChatUserFeedback({
+          //   appId,
+          //   chatId,
+          //   chatItemId: chat.dataId,
+          //   shareId,
+          //   outLinkUid,
+          //   userGoodFeedback: isGoodFeedback ? undefined : 'yes'
+          // });
+        // } catch (error) {}
       };
     },
     [appId, chatId, feedbackType, outLinkUid, shareId]
@@ -689,12 +609,12 @@ const ChatBox = (
               : chatItem
           )
         );
-        updateChatUserFeedback({
-          appId,
-          chatId,
-          chatItemId: chat.dataId,
-          userGoodFeedback: undefined
-        });
+        // updateChatUserFeedback({
+        //   appId,
+        //   chatId,
+        //   chatItemId: chat.dataId,
+        //   userGoodFeedback: undefined
+        // });
       };
     },
     [appId, chatId, feedbackType]
@@ -720,15 +640,15 @@ const ChatBox = (
                 : chatItem
             )
           );
-          try {
-            updateChatUserFeedback({
-              appId,
-              chatId,
-              chatItemId: chat.dataId,
-              shareId,
-              outLinkUid
-            });
-          } catch (error) {}
+          // try {
+          //   updateChatUserFeedback({
+          //     appId,
+          //     chatId,
+          //     chatItemId: chat.dataId,
+          //     shareId,
+          //     outLinkUid
+          //   });
+          // } catch (error) {}
         };
       } else {
         return () => setFeedbackId(chat.dataId);
@@ -752,32 +672,6 @@ const ChatBox = (
       };
     },
     [feedbackType]
-  );
-  const onCloseCustomFeedback = useCallback(
-    (chat: ChatSiteItemType, i: number) => {
-      return (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked && appId && chatId && chat.dataId) {
-          closeCustomFeedback({
-            appId,
-            chatId,
-            chatItemId: chat.dataId,
-            index: i
-          });
-          // update dom
-          setChatHistories((state) =>
-            state.map((chatItem) =>
-              chatItem.obj === ChatRoleEnum.AI && chatItem.dataId === chat.dataId
-                ? {
-                    ...chatItem,
-                    customFeedbacks: chatItem.customFeedbacks?.filter((_, index) => index !== i)
-                  }
-                : chatItem
-            )
-          );
-        }
-      };
-    },
-    [appId, chatId]
   );
 
   const showEmpty = useMemo(
@@ -950,7 +844,7 @@ const ChatBox = (
                           {item.customFeedbacks.map((text, i) => (
                             <Box key={`${text}${i}`}>
                               <MyTooltip label={t('core.app.feedback.close custom feedback')}>
-                                <Checkbox onChange={onCloseCustomFeedback(item, i)}>
+                                <Checkbox>
                                   {text}
                                 </Checkbox>
                               </MyTooltip>
@@ -1031,11 +925,11 @@ const ChatBox = (
               if (!chatId || !appId) {
                 return;
               }
-              updateChatUserFeedback({
-                appId,
-                chatId,
-                chatItemId: readFeedbackData.chatItemId
-              });
+              // updateChatUserFeedback({
+              //   appId,
+              //   chatId,
+              //   chatItemId: readFeedbackData.chatItemId
+              // });
             } catch (error) {}
             setReadFeedbackData(undefined);
           }}
@@ -1051,12 +945,12 @@ const ChatBox = (
             if (!appId || !chatId || !adminMarkData.chatItemId) {
               return;
             }
-            updateChatAdminFeedback({
-              appId,
-              chatId,
-              chatItemId: adminMarkData.chatItemId,
-              ...adminFeedback
-            });
+            // updateChatAdminFeedback({
+            //   appId,
+            //   chatId,
+            //   chatItemId: adminMarkData.chatItemId,
+            //   ...adminFeedback
+            // });
 
             // update dom
             setChatHistories((state) =>
@@ -1071,12 +965,12 @@ const ChatBox = (
             );
 
             if (readFeedbackData && chatId && appId) {
-              updateChatUserFeedback({
-                appId,
-                chatId,
-                chatItemId: readFeedbackData.chatItemId,
-                userBadFeedback: undefined
-              });
+              // updateChatUserFeedback({
+              //   appId,
+              //   chatId,
+              //   chatItemId: readFeedbackData.chatItemId,
+              //   userBadFeedback: undefined
+              // });
               setChatHistories((state) =>
                 state.map((chatItem) =>
                   chatItem.dataId === readFeedbackData.chatItemId

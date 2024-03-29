@@ -3,7 +3,6 @@ import { ModalBody, Textarea, ModalFooter, Button } from '@chakra-ui/react';
 import MyModal from '../MyModal';
 import { useRequest } from '@/web/common/hooks/useRequest';
 import { useTranslation } from 'next-i18next';
-import { updateChatUserFeedback } from '@/web/core/chat/api';
 
 const FeedbackModal = ({
   appId,
@@ -28,14 +27,14 @@ const FeedbackModal = ({
   const { mutate, isLoading } = useRequest({
     mutationFn: async () => {
       const val = ref.current?.value || t('core.chat.feedback.No Content');
-      return updateChatUserFeedback({
-        appId,
-        chatId,
-        chatItemId,
-        shareId,
-        outLinkUid,
-        userBadFeedback: val
-      });
+      // return updateChatUserFeedback({
+      //   appId,
+      //   chatId,
+      //   chatItemId,
+      //   shareId,
+      //   outLinkUid,
+      //   userBadFeedback: val
+      // });
     },
     onSuccess() {
       onSuccess(ref.current?.value || t('core.chat.feedback.No Content'));
