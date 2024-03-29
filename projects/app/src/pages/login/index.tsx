@@ -6,10 +6,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Loading from '@fastgpt/web/components/common/MyLoading';
 
 import { LoginPageTypeEnum } from '@/constants/user';
-import { clearToken } from '@/web/support/user/auth';
 import LoginForm from './components/LoginForm/LoginForm';
 import { serviceSideProps } from '@/web/common/utils/i18n';
-import type { UserResType } from '@/global/support/api/userRes.d';
+import type { UserResType } from '@/types/api/user';
 import { useUserStore } from '@/web/support/user/useUserStore';
 
 const RegisterForm = dynamic(() => import('./components/RegisterForm'));

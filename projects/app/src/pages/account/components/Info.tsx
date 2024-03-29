@@ -4,17 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { useQuery } from '@tanstack/react-query';
 import React, { useCallback, useMemo } from 'react';
-import {
-  Box,
-  Flex,
-  Button,
-  useDisclosure,
-  useTheme,
-  Input,
-  Link,
-  Progress,
-  Grid
-} from '@chakra-ui/react';
+import { Box, Flex, Button, useDisclosure, useTheme, Input, Link, Progress, Grid } from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyIcon from '@fastgpt/web/components/common/Icon';
@@ -23,11 +13,10 @@ import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants'
 import { standardSubLevelMap } from '@fastgpt/global/support/wallet/sub/constants';
 
 import Avatar from '@/components/Avatar';
+import { UserResType } from '@/types/api/user';
 import MyTooltip from '@/components/MyTooltip';
 import { UserUpdateParams } from '@/types/user';
-import { UserResType } from '@/global/support/api/userRes';
 import { useUserStore } from '@/web/support/user/useUserStore';
-import { putUpdateMemberName } from '@/web/support/user/team/api';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
 import { compressImgFileAndUpload } from '@/web/common/file/controller';
@@ -83,11 +72,7 @@ const MyInfo = () => {
 
   const { toast } = useToast();
 
-  const {
-    isOpen: isOpenPayModal,
-    onClose: onClosePayModal,
-    onOpen: onOpenPayModal
-  } = useDisclosure();
+  const { isOpen: isOpenPayModal, onClose: onClosePayModal, onOpen: onOpenPayModal } = useDisclosure();
 
   const {
     isOpen: isOpenUpdatePsw,
@@ -141,6 +126,21 @@ const MyInfo = () => {
     },
     [onclickSave, t, toast, userInfo]
   );
+
+  const changeUserInfo = async (userInfo: Parameters<typeof updateUserInfo>[0]) => {
+    try {
+      await updateUserInfo(userInfo)
+      toast({
+        title: '修改成功',
+        status: 'success'
+      });
+    } catch (error: any) {
+      toast({
+        title:  error.message || '修改失败',
+        status: 'error'
+      });
+    }
+  }
 
   return (
     <Box>
@@ -209,21 +209,51 @@ const MyInfo = () => {
             borderColor={'transparent'}
             transform={'translateX(-11px)'}
             maxLength={20}
-            onBlur={(e) => {
-              const val = e.target.value;
-              try {
-                putUpdateMemberName(val);
-              } catch (error) {}
+            onBlur={async (e) => {
+              const val = e.target.value
+              if (val !== userInfo?.nick_name) {
+                await changeUserInfo({ nick_name: val })
+              }
             }}
           />
         </Flex>
         <Flex alignItems={'center'} mt={6}>
           <Box flex={'0 0 80px'}>{t('user.Account')}:&nbsp;</Box>
-          <Box flex={1}>{userInfo?.user_name}</Box>
+          <Input
+            flex={'1 0 0'}
+            defaultValue={userInfo?.user_name}
+            title={t('user.Edit name')}
+            borderColor={'transparent'}
+            transform={'translateX(-11px)'}
+            maxLength={20}
+            onBlur={async (e) => {
+              const val = e.target.value
+              if (val !== userInfo?.user_name) {
+                await changeUserInfo({ user_name: val })
+              }
+            }}
+          />
+        </Flex>
+        <Flex alignItems={'center'} mt={6}>
+          <Box flex={'0 0 80px'}>手机号:</Box>
+          <Input
+            flex={'1 0 0'}
+            defaultValue={userInfo?.phone}
+            title={'手机号'}
+            borderColor={'transparent'}
+            transform={'translateX(-11px)'}
+            maxLength={20}
+            onBlur={async (e) => {
+              const val = e.target.value
+              if (val !== userInfo?.phone) {
+                await changeUserInfo({ phone: val })
+              }
+            }}
+          />
         </Flex>
         <Flex mt={6} alignItems={'center'}>
           <Box flex={'0 0 80px'}>{t('user.Password')}:&nbsp;</Box>
-          <Box flex={1}>*****</Box>
+          <Box flex={1}>{'*'.repeat(8)}</Box>
           <Button size={'sm'} variant={'whitePrimary'} onClick={onOpenUpdatePsw}>
             {t('user.Change')}
           </Button>

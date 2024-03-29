@@ -23,7 +23,7 @@ export interface LoginResType {
   token: string;
 }
 
-export interface UpdateUserParams {
+export interface UserUpdateParams {
   user_name: string;
   password: string;
   nick_name: string;

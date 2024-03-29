@@ -1,33 +1,32 @@
 import React from 'react';
-import { ModalBody, Box, Flex, Input, ModalFooter, Button } from '@chakra-ui/react';
-import MyModal from '@/components/MyModal';
-import { useTranslation } from 'next-i18next';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'next-i18next';
+import { ModalBody, Box, Flex, Input, ModalFooter, Button } from '@chakra-ui/react';
+
+import MyModal from '@/components/MyModal';
+import { updateUserInfo } from '@/web/support/user/_api'
 import { useRequest } from '@/web/common/hooks/useRequest';
-import { updatePasswordByOld } from '@/web/support/user/api';
 
 type FormType = {
-  oldPsw: string;
-  newPsw: string;
-  confirmPsw: string;
+  password: string;
+  confirmPassword: string;
 };
 
 const UpdatePswModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const { register, handleSubmit } = useForm<FormType>({
     defaultValues: {
-      oldPsw: '',
-      newPsw: '',
-      confirmPsw: ''
+      password: '',
+      confirmPassword: ''
     }
   });
 
   const { mutate: onSubmit, isLoading } = useRequest({
     mutationFn: (data: FormType) => {
-      if (data.newPsw !== data.confirmPsw) {
+      if (data.password !== data.confirmPassword) {
         return Promise.reject(t('common.Password inconsistency'));
       }
-      return updatePasswordByOld(data);
+      return updateUserInfo({ password: data.password })
     },
     onSuccess() {
       onClose();
@@ -44,16 +43,13 @@ const UpdatePswModal = ({ onClose }: { onClose: () => void }) => {
       title={t('user.Update Password')}
     >
       <ModalBody>
-        <Flex alignItems={'center'}>
-          <Box flex={'0 0 70px'}>旧密码:</Box>
-          <Input flex={1} type={'password'} {...register('oldPsw', { required: true })}></Input>
-        </Flex>
         <Flex alignItems={'center'} mt={5}>
           <Box flex={'0 0 70px'}>新密码:</Box>
           <Input
             flex={1}
             type={'password'}
-            {...register('newPsw', {
+            placeholder={'请输入密码'}
+            {...register('password', {
               required: true,
               maxLength: {
                 value: 60,
@@ -67,7 +63,8 @@ const UpdatePswModal = ({ onClose }: { onClose: () => void }) => {
           <Input
             flex={1}
             type={'password'}
-            {...register('confirmPsw', {
+            placeholder={'请确认密码'}
+            {...register('confirmPassword', {
               required: true,
               maxLength: {
                 value: 60,

@@ -8,7 +8,7 @@ import { useToast } from '@fastgpt/web/hooks/useToast';
 import FormLayout from './components/FormLayout';
 import { setToken } from '@/web/support/user/auth';
 import { LoginPageTypeEnum } from '@/constants/user';
-import type { UserResType } from '@/global/support/api/userRes';
+import type { UserResType } from '@/types/api/user';
 import { loginByAccount, queryUserInfo } from '@/web/support/user/_api';
 
 interface Props {

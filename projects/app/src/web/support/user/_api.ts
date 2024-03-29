@@ -2,7 +2,7 @@ import type { PostLoginProps } from '@fastgpt/global/support/user/api';
 
 import { POST } from '@/web/common/api/sophonsai';
 import type { RequireAtLeastOne } from '@/types/tools';
-import type { UpdateUserParams, UserResType } from '@/types/api/user';
+import type { UserUpdateParams, UserResType } from '@/types/api/user';
 
 export const logout = () => POST('/user/logout');
 
@@ -14,5 +14,5 @@ export const loginByAccount = ({ password, username }: PostLoginProps) =>
 export const queryUserInfo = () => POST<UserResType>('/user/query_userinfo');
 
 //
-export const updateUserInfo = (data: RequireAtLeastOne<UpdateUserParams>) =>
+export const updateUserInfo = (data: RequireAtLeastOne<UserUpdateParams>) =>
   POST('/user/update_userinfo', data);
