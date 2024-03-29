@@ -1,14 +1,18 @@
-import { serviceSideProps } from '@/web/common/utils/i18n';
-import React, { useEffect } from 'react';
-import Loading from '@fastgpt/web/components/common/MyLoading';
 import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
 
-const index = () => {
+import Loading from '@fastgpt/web/components/common/MyLoading';
+
+import { serviceSideProps } from '@/web/common/utils/i18n';
+
+const Index = () => {
   const router = useRouter();
+
   useEffect(() => {
-    router.push('/app/list');
+    router.push('/chat');
   }, [router]);
-  return <Loading></Loading>;
+
+  return <Loading />;
 };
 
 export async function getServerSideProps(content: any) {
@@ -18,4 +22,5 @@ export async function getServerSideProps(content: any) {
     }
   };
 }
-export default index;
+
+export default Index;

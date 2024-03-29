@@ -1,6 +1,6 @@
 import React, { Dispatch } from 'react';
 import { LoginPageTypeEnum } from '@/constants/user';
-import type { ResLogin } from '@/global/support/api/userRes';
+import type { ResLogin, UserResType } from '@/global/support/api/userRes';
 import { Box, Center, Image } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { getWXLoginQR, getWXLoginResult } from '@/web/support/user/api';
@@ -12,7 +12,7 @@ import { useTranslation } from 'next-i18next';
 import Loading from '@fastgpt/web/components/common/MyLoading';
 
 interface Props {
-  loginSuccess: (e: ResLogin) => void;
+  loginSuccess: (e: UserResType) => void;
   setPageType: Dispatch<`${LoginPageTypeEnum}`>;
 }
 
@@ -33,7 +33,7 @@ const WechatForm = ({ setPageType, loginSuccess }: Props) => {
     refetchInterval: 3 * 1000,
     enabled: !!wechatInfo?.code,
     onSuccess(data: ResLogin) {
-      loginSuccess(data);
+      // loginSuccess(data);
     }
   });
 
@@ -51,6 +51,18 @@ const WechatForm = ({ setPageType, loginSuccess }: Props) => {
               <Loading fixed={false} />
             </Center>
           )}
+        </Box>
+        <Box
+          float={'right'}
+          fontSize="sm"
+          mt={2}
+          mb={'50px'}
+          color={'primary.700'}
+          cursor={'pointer'}
+          _hover={{ textDecoration: 'underline' }}
+          onClick={() => setPageType(LoginPageTypeEnum.passwordLogin)}
+        >
+          去登录
         </Box>
       </Box>
     </FormLayout>

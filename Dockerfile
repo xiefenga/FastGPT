@@ -73,7 +73,7 @@ COPY --from=builder /app/projects/$name/next.config.js /app/projects/$name/next.
 COPY --from=builder --chown=nextjs:nodejs /app/projects/$name/.next/standalone /app/
 COPY --from=builder --chown=nextjs:nodejs /app/projects/$name/.next/static /app/projects/$name/.next/static
 # copy package.json to version file
-COPY --from=builder /app/projects/$name/package.json ./package.json 
+COPY --from=builder /app/projects/$name/package.json ./package.json
 # copy woker
 COPY --from=workerDeps /app/worker /app/worker
 # copy config

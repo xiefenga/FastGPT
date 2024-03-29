@@ -1,18 +1,16 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Box, Center, Flex, useDisclosure } from '@chakra-ui/react';
-import { LoginPageTypeEnum } from '@/constants/user';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import type { ResLogin } from '@/global/support/api/userRes.d';
-import { useRouter } from 'next/router';
-import { useUserStore } from '@/web/support/user/useUserStore';
-import { useChatStore } from '@/web/core/chat/storeChat';
-import LoginForm from './components/LoginForm/LoginForm';
 import dynamic from 'next/dynamic';
-import { serviceSideProps } from '@/web/common/utils/i18n';
-import { clearToken, setToken } from '@/web/support/user/auth';
-import CommunityModal from '@/components/CommunityModal';
-import Script from 'next/script';
+import { useRouter } from 'next/router';
+import { Box, Center, Flex } from '@chakra-ui/react';
+import React, { useState, useCallback, useEffect } from 'react';
+
 import Loading from '@fastgpt/web/components/common/MyLoading';
+
+import { LoginPageTypeEnum } from '@/constants/user';
+import { clearToken } from '@/web/support/user/auth';
+import LoginForm from './components/LoginForm/LoginForm';
+import { serviceSideProps } from '@/web/common/utils/i18n';
+import type { UserResType } from '@/global/support/api/userRes.d';
+import { useUserStore } from '@/web/support/user/useUserStore';
 
 const RegisterForm = dynamic(() => import('./components/RegisterForm'));
 const ForgetPasswordForm = dynamic(() => import('./components/ForgetPasswordForm'));
@@ -20,26 +18,23 @@ const WechatForm = dynamic(() => import('./components/LoginForm/WechatForm'));
 
 const Login = () => {
   const router = useRouter();
-  const { lastRoute = '' } = router.query as { lastRoute: string };
-  const { feConfigs } = useSystemStore();
-  const [pageType, setPageType] = useState<`${LoginPageTypeEnum}`>();
+  const { lastRoute = '', type = LoginPageTypeEnum.passwordLogin } = router.query as {
+    lastRoute: string;
+    type: `${LoginPageTypeEnum}`;
+  };
+
+  const [pageType, setPageType] = useState<`${LoginPageTypeEnum}`>(type);
   const { setUserInfo } = useUserStore();
-  const { setLastChatId, setLastChatAppId } = useChatStore();
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const loginSuccess = useCallback(
-    (res: ResLogin) => {
+    (user: UserResType) => {
       // init store
-      setLastChatId('');
-      setLastChatAppId('');
-
-      setUserInfo(res.user);
-      setToken(res.token);
+      setUserInfo(user);
       setTimeout(() => {
-        router.push(lastRoute ? decodeURIComponent(lastRoute) : '/app/list');
+        router.push(lastRoute ? decodeURIComponent(lastRoute) : '/app/chat');
       }, 300);
     },
-    [lastRoute, router, setLastChatId, setLastChatAppId, setUserInfo]
+    [lastRoute, router, setUserInfo]
   );
 
   function DynamicComponent({ type }: { type: `${LoginPageTypeEnum}` }) {
@@ -55,24 +50,13 @@ const Login = () => {
     return <Component setPageType={setPageType} loginSuccess={loginSuccess} />;
   }
 
-  /* default login type */
-  useEffect(() => {
-    setPageType(
-      feConfigs?.oauth?.wechat ? LoginPageTypeEnum.wechat : LoginPageTypeEnum.passwordLogin
-    );
-  }, [feConfigs.oauth]);
-  useEffect(() => {
-    clearToken();
-    router.prefetch('/app/list');
-  }, []);
+  // useEffect(() => {
+  //   clearToken();
+  //   router.prefetch('/app/chat');
+  // }, [router]);
 
   return (
     <>
-      {feConfigs.googleClientVerKey && (
-        <Script
-          src={`https://www.recaptcha.net/recaptcha/api.js?render=${feConfigs.googleClientVerKey}`}
-        ></Script>
-      )}
       <Flex
         alignItems={'center'}
         justifyContent={'center'}
@@ -105,20 +89,7 @@ const Login = () => {
               </Center>
             )}
           </Box>
-          {feConfigs?.concatMd && (
-            <Box
-              mt={8}
-              color={'primary.700'}
-              cursor={'pointer'}
-              textAlign={'center'}
-              onClick={onOpen}
-            >
-              无法登录，点击联系
-            </Box>
-          )}
         </Flex>
-
-        {isOpen && <CommunityModal onClose={onClose} />}
       </Flex>
     </>
   );

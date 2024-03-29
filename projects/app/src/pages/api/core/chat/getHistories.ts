@@ -50,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return Promise.reject('Params are error');
     })();
 
-    const data = await MongoChat.find(match, 'chatId title top customTitle appId updateTime')
+    const data = await MongoChat.find({}, 'chatId title top customTitle appId updateTime')
       .sort({ top: -1, updateTime: -1 })
       .limit(limit);
 

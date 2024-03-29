@@ -1,20 +1,20 @@
 import React from 'react';
 import { Card, Box, Flex } from '@chakra-ui/react';
-import { useMarkdown } from '@/web/common/hooks/useMarkdown';
-import Markdown from '@/components/Markdown';
-import Avatar from '@/components/Avatar';
 
-const Empty = ({
-  showChatProblem,
-  model: { name, intro, avatar }
-}: {
+import Avatar from '@/components/Avatar';
+import Markdown from '@/components/Markdown';
+import { useMarkdown } from '@/web/common/hooks/useMarkdown';
+
+interface EmptyProps {
   showChatProblem: boolean;
   model: {
     name: string;
     intro: string;
     avatar: string;
   };
-}) => {
+}
+
+const Empty: React.FC<EmptyProps> = ({ showChatProblem, model: { name, intro, avatar } }) => {
   const { data: chatProblem } = useMarkdown({ url: '/chatProblem.md' });
   const { data: versionIntro } = useMarkdown({ url: '/versionIntro.md' });
 

@@ -1,16 +1,17 @@
+import { useForm } from 'react-hook-form';
 import React, { useState, Dispatch, useCallback } from 'react';
 import { FormControl, Box, Input, Button } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
-import { LoginPageTypeEnum } from '@/constants/user';
-import { postFindPassword } from '@/web/support/user/api';
-import { useSendCode } from '@/web/support/user/hooks/useSendCode';
-import type { ResLogin } from '@/global/support/api/userRes.d';
+
 import { useToast } from '@fastgpt/web/hooks/useToast';
+
+import { LoginPageTypeEnum } from '@/constants/user';
+import type { UserResType } from '@/global/support/api/userRes.d';
+import { useSendCode } from '@/web/support/user/hooks/useSendCode';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 
 interface Props {
   setPageType: Dispatch<`${LoginPageTypeEnum}`>;
-  loginSuccess: (e: ResLogin) => void;
+  loginSuccess: (e: UserResType) => void;
 }
 
 interface RegisterType {
@@ -37,8 +38,10 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
 
   const onclickSendCode = useCallback(async () => {
     const check = await trigger('username');
-    if (!check) return;
-    sendCode({
+    if (!check) {
+      return;
+    }
+    await sendCode({
       username: getValues('username'),
       type: 'findPassword'
     });
@@ -50,13 +53,12 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
     async ({ username, code, password }: RegisterType) => {
       setRequesting(true);
       try {
-        loginSuccess(
-          await postFindPassword({
-            username,
-            code,
-            password
-          })
-        );
+        // const { token, user } = await postFindPassword({
+        //   username,
+        //   code,
+        //   password
+        // })
+        // loginSuccess(user);
         toast({
           title: `密码已找回`,
           status: 'success'
@@ -69,7 +71,7 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
       }
       setRequesting(false);
     },
-    [loginSuccess, toast]
+    [toast]
   );
 
   return (

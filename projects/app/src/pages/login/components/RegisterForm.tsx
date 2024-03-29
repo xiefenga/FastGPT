@@ -1,18 +1,19 @@
+import { useForm } from 'react-hook-form';
 import React, { useState, Dispatch, useCallback } from 'react';
 import { FormControl, Box, Input, Button } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
-import { LoginPageTypeEnum } from '@/constants/user';
-import { postRegister } from '@/web/support/user/api';
-import { useSendCode } from '@/web/support/user/hooks/useSendCode';
-import type { ResLogin } from '@/global/support/api/userRes';
+
 import { useToast } from '@fastgpt/web/hooks/useToast';
+
+import { LoginPageTypeEnum } from '@/constants/user';
+import type { UserResType } from '@/global/support/api/userRes';
+import { useSendCode } from '@/web/support/user/hooks/useSendCode';
 import { postCreateApp } from '@/web/core/app/api';
 import { appTemplates } from '@/web/core/app/templates';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useTranslation } from 'next-i18next';
 
 interface Props {
-  loginSuccess: (e: ResLogin) => void;
+  loginSuccess: (e: UserResType) => void;
   setPageType: Dispatch<`${LoginPageTypeEnum}`>;
 }
 
@@ -41,8 +42,10 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
 
   const onclickSendCode = useCallback(async () => {
     const check = await trigger('username');
-    if (!check) return;
-    sendCode({
+    if (!check) {
+      return;
+    }
+    await sendCode({
       username: getValues('username'),
       type: 'register'
     });
@@ -54,14 +57,14 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
     async ({ username, password, code }: RegisterType) => {
       setRequesting(true);
       try {
-        loginSuccess(
-          await postRegister({
-            username,
-            code,
-            password,
-            inviterId: localStorage.getItem('inviterId') || undefined
-          })
-        );
+        // loginSuccess(
+        //   await postRegister({
+        //     username,
+        //     code,
+        //     password,
+        //     inviterId: localStorage.getItem('inviterId') || undefined
+        //   })
+        // );
         toast({
           title: `注册成功`,
           status: 'success'
@@ -85,7 +88,7 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
       }
       setRequesting(false);
     },
-    [loginSuccess, t, toast]
+    [t, toast]
   );
 
   return (

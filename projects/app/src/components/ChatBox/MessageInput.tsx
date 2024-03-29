@@ -1,7 +1,7 @@
 import { useSpeech } from '@/web/common/hooks/useSpeech';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { Box, Flex, Image, Spinner, Textarea } from '@chakra-ui/react';
-import React, { useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'next-i18next';
 import MyTooltip from '../MyTooltip';
 import MyIcon from '@fastgpt/web/components/common/Icon';
@@ -18,7 +18,17 @@ import { textareaMinH } from './constants';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 6);
 
-const MessageInput = ({
+type Props = OutLinkChatAuthProps & {
+  onSendMessage: (val: ChatBoxInputType) => void;
+  onStop: () => void;
+  isChatting: boolean;
+  showFileSelector?: boolean;
+  TextareaDom: React.MutableRefObject<HTMLTextAreaElement | null>;
+  resetInputVal: (val: ChatBoxInputType) => void;
+  chatForm: UseFormReturn<ChatBoxInputFormType>;
+};
+
+const MessageInput: React.FC<Props> = ({
   onSendMessage,
   onStop,
   isChatting,
@@ -30,14 +40,6 @@ const MessageInput = ({
   teamId,
   teamToken,
   chatForm
-}: OutLinkChatAuthProps & {
-  onSendMessage: (val: ChatBoxInputType) => void;
-  onStop: () => void;
-  isChatting: boolean;
-  showFileSelector?: boolean;
-  TextareaDom: React.MutableRefObject<HTMLTextAreaElement | null>;
-  resetInputVal: (val: ChatBoxInputType) => void;
-  chatForm: UseFormReturn<ChatBoxInputFormType>;
 }) => {
   const { setValue, watch, control } = chatForm;
   const inputValue = watch('input');
@@ -174,7 +176,9 @@ const MessageInput = ({
     const source = audioContext.createMediaStreamSource(stream);
     source.connect(analyser);
     const renderCurve = () => {
-      if (!canvasRef.current) return;
+      if (!canvasRef.current) {
+        return;
+      }
       renderAudioGraph(analyser, canvasRef.current);
       window.requestAnimationFrame(renderCurve);
     };
@@ -291,7 +295,9 @@ const MessageInput = ({
               cursor={'pointer'}
               transform={'translateY(1px)'}
               onClick={() => {
-                if (isSpeaking) return;
+                if (isSpeaking) {
+                  return;
+                }
                 onOpenSelectFile();
               }}
             >
@@ -334,8 +340,9 @@ const MessageInput = ({
             }}
             onKeyDown={(e) => {
               // enter send.(pc or iframe && enter and unPress shift)
-              const isEnter = e.keyCode === 13;
-              if (isEnter && TextareaDom.current && (e.ctrlKey || e.altKey)) {
+              const isEnter = e.key.toLowerCase() === 'enter'; // e.keyCode === 13;
+              // add \n
+              if (isEnter && TextareaDom.current && (e.ctrlKey || e.altKey || e.shiftKey)) {
                 TextareaDom.current.value += '\n';
                 TextareaDom.current.style.height = textareaMinH;
                 TextareaDom.current.style.height = `${TextareaDom.current.scrollHeight}px`;
@@ -346,7 +353,7 @@ const MessageInput = ({
               // @ts-ignore
               e.key === 'a' && e.ctrlKey && e.target?.select();
 
-              if ((isPc || window !== parent) && e.keyCode === 13 && !e.shiftKey) {
+              if ((isPc || window !== parent) && isEnter && !e.shiftKey) {
                 handleSend();
                 e.preventDefault();
               }

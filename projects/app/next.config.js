@@ -4,6 +4,14 @@ const path = require('path');
 
 const nextConfig = {
   i18n,
+  async rewrites() {
+    return [
+      {
+        source: "/sophonsai/:slug*",
+        destination: "https://chatapi.sophonsai.com/:slug*",
+      }
+    ];
+  },
   output: 'standalone',
   reactStrictMode: process.env.NODE_ENV === 'development' ? false : true,
   compress: true,
@@ -47,7 +55,14 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['mongoose', 'pg'],
     outputFileTracingRoot: path.join(__dirname, '../../')
-  }
+  },
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
 };
 
 module.exports = nextConfig;

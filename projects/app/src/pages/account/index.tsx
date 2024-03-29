@@ -1,17 +1,20 @@
-import React, { useCallback } from 'react';
-import { Box, Flex, useDisclosure, useTheme } from '@chakra-ui/react';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { useRouter } from 'next/router';
+import Script from 'next/script';
 import dynamic from 'next/dynamic';
-import { useUserStore } from '@/web/support/user/useUserStore';
-import { useConfirm } from '@/web/common/hooks/useConfirm';
-import PageContainer from '@/components/PageContainer';
-import SideTabs from '@/components/SideTabs';
+import { useRouter } from 'next/router';
+import React, { useCallback } from 'react';
+import { useTranslation } from 'next-i18next';
+import { Box, Flex, useTheme } from '@chakra-ui/react';
+
 import Tabs from '@/components/Tabs';
 import UserInfo from './components/Info';
+import SideTabs from '@/components/SideTabs';
+import PageContainer from '@/components/PageContainer';
+import { useConfirm } from '@/web/common/hooks/useConfirm';
+import { useUserStore } from '@/web/support/user/useUserStore';
 import { serviceSideProps } from '@/web/common/utils/i18n';
-import { useTranslation } from 'next-i18next';
-import Script from 'next/script';
+import { useSystemStore } from '@/web/common/system/useSystemStore';
+import { logout } from '@/web/support/user/_api';
+import { clearToken } from '@/web/support/user/auth';
 
 const Promotion = dynamic(() => import('./components/Promotion'));
 const UsageTable = dynamic(() => import('./components/UsageTable'));
@@ -31,10 +34,14 @@ enum TabEnum {
   'loginout' = 'loginout'
 }
 
-const Account = ({ currentTab }: { currentTab: `${TabEnum}` }) => {
+interface AccountProps {
+  currentTab: `${TabEnum}`;
+}
+
+const Account: React.FC<AccountProps> = ({ currentTab }) => {
   const { t } = useTranslation();
-  const { userInfo, setUserInfo } = useUserStore();
-  const { feConfigs, isPc } = useSystemStore();
+  const { setUserInfo } = useUserStore();
+  const { isPc } = useSystemStore();
 
   const tabList = [
     {
@@ -42,58 +49,36 @@ const Account = ({ currentTab }: { currentTab: `${TabEnum}` }) => {
       label: t('user.Personal Information'),
       id: TabEnum.info
     },
-    ...(feConfigs?.isPlus
-      ? [
-          {
-            icon: 'support/usage/usageRecordLight',
-            label: t('user.Usage Record'),
-            id: TabEnum.usage
-          }
-        ]
-      : []),
-    ...(feConfigs?.show_pay && userInfo?.team.canWrite
-      ? [
-          {
-            icon: 'support/bill/payRecordLight',
-            label: t('support.wallet.Bills'),
-            id: TabEnum.bill
-          }
-        ]
-      : []),
-
-    ...(feConfigs?.show_promotion
-      ? [
-          {
-            icon: 'support/account/promotionLight',
-            label: t('user.Promotion Record'),
-            id: TabEnum.promotion
-          }
-        ]
-      : []),
-    ...(userInfo?.team.canWrite
-      ? [
-          {
-            icon: 'support/outlink/apikeyLight',
-            label: t('user.apikey.key'),
-            id: TabEnum.apikey
-          }
-        ]
-      : []),
+    {
+      icon: 'support/usage/usageRecordLight',
+      label: t('user.Usage Record'),
+      id: TabEnum.usage
+    },
+    {
+      icon: 'support/bill/payRecordLight',
+      label: t('support.wallet.Bills'),
+      id: TabEnum.bill
+    },
+    {
+      icon: 'support/account/promotionLight',
+      label: t('user.Promotion Record'),
+      id: TabEnum.promotion
+    },
+    {
+      icon: 'support/outlink/apikeyLight',
+      label: t('user.apikey.key'),
+      id: TabEnum.apikey
+    },
     {
       icon: 'support/user/individuation',
       label: t('support.account.Individuation'),
       id: TabEnum.individuation
     },
-    ...(feConfigs.isPlus
-      ? [
-          {
-            icon: 'support/user/informLight',
-            label: t('user.Notice'),
-            id: TabEnum.inform
-          }
-        ]
-      : []),
-
+    {
+      icon: 'support/user/informLight',
+      label: t('user.Notice'),
+      id: TabEnum.inform
+    },
     {
       icon: 'support/account/loginoutLight',
       label: t('user.Sign Out'),
@@ -112,8 +97,12 @@ const Account = ({ currentTab }: { currentTab: `${TabEnum}` }) => {
     (tab: string) => {
       if (tab === TabEnum.loginout) {
         openConfirm(() => {
-          setUserInfo(null);
-          router.replace('/login');
+          logout()
+            .finally(() => {
+              clearToken();
+              setUserInfo(null);
+            })
+            .then(() => router.replace('/login'));
         })();
       } else {
         router.replace({

@@ -9,6 +9,7 @@ import { customAlphabet } from 'nanoid';
 import { useRouter } from 'next/router';
 import { Dispatch, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
+
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 8);
 
 interface Props {
@@ -26,26 +27,18 @@ const FormLayout = ({ children, setPageType, pageType }: Props) => {
   const redirectUri = `${location.origin}/login/provider`;
 
   const oAuthList = [
-    ...(feConfigs?.oauth?.github
-      ? [
-          {
-            label: t('support.user.login.Github'),
-            provider: OAuthEnum.github,
-            icon: 'common/gitFill',
-            redirectUrl: `https://github.com/login/oauth/authorize?client_id=${feConfigs?.oauth?.github}&redirect_uri=${redirectUri}&state=${state.current}&scope=user:email%20read:user`
-          }
-        ]
-      : []),
-    ...(feConfigs?.oauth?.google
-      ? [
-          {
-            label: t('support.user.login.Google'),
-            provider: OAuthEnum.google,
-            icon: 'common/googleFill',
-            redirectUrl: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${feConfigs?.oauth?.google}&redirect_uri=${redirectUri}&state=${state.current}&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&include_granted_scopes=true`
-          }
-        ]
-      : []),
+    {
+      label: t('support.user.login.Github'),
+      provider: OAuthEnum.github,
+      icon: 'common/gitFill',
+      redirectUrl: `https://github.com/login/oauth/authorize?client_id=${feConfigs?.oauth?.github}&redirect_uri=${redirectUri}&state=${state.current}&scope=user:email%20read:user`
+    },
+    {
+      label: t('support.user.login.Google'),
+      provider: OAuthEnum.google,
+      icon: 'common/googleFill',
+      redirectUrl: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${feConfigs?.oauth?.google}&redirect_uri=${redirectUri}&state=${state.current}&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&include_granted_scopes=true`
+    },
     ...(feConfigs?.oauth?.wechat && pageType !== LoginPageTypeEnum.wechat
       ? [
           {
@@ -83,7 +76,7 @@ const FormLayout = ({ children, setPageType, pageType }: Props) => {
           <Image src={LOGO_ICON} w={'24px'} alt={'icon'} />
         </Flex>
         <Box ml={3} fontSize={['2xl', '3xl']} fontWeight={'bold'}>
-          {feConfigs?.systemTitle}
+          SophonsAI
         </Box>
       </Flex>
       {children}

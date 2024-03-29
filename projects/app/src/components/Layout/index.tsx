@@ -1,17 +1,17 @@
+import { throttle } from 'lodash';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import React, { useEffect, useMemo } from 'react';
 import { Box, useColorMode, Flex } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+
 import { useLoading } from '@fastgpt/web/hooks/useLoading';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { throttle } from 'lodash';
-import { useQuery } from '@tanstack/react-query';
-import { useUserStore } from '@/web/support/user/useUserStore';
-import { getUnreadCount } from '@/web/support/user/inform/api';
-import dynamic from 'next/dynamic';
 
 import Auth from './auth';
 import Navbar from './navbar';
 import NavbarPhone from './navbarPhone';
+import { useUserStore } from '@/web/support/user/useUserStore';
+import { useSystemStore } from '@/web/common/system/useSystemStore';
+
 const UpdateInviteModal = dynamic(
   () => import('@/components/support/user/team/UpdateInviteModal'),
   { ssr: false }
@@ -22,20 +22,15 @@ const pcUnShowLayoutRoute: Record<string, boolean> = {
   '/login': true,
   '/login/provider': true,
   '/login/fastlogin': true,
-  '/chat/share': true,
-  '/chat/team': true,
-  '/app/edit': true,
-  '/chat': true,
   '/tools/price': true,
   '/price': true
 };
+
 const phoneUnShowLayoutRoute: Record<string, boolean> = {
   '/': true,
   '/login': true,
   '/login/provider': true,
   '/login/fastlogin': true,
-  '/chat/share': true,
-  '/chat/team': true,
   '/tools/price': true,
   '/price': true
 };
@@ -44,7 +39,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
   const router = useRouter();
   const { colorMode, setColorMode } = useColorMode();
   const { Loading } = useLoading();
-  const { loading, setScreenWidth, isPc, feConfigs } = useSystemStore();
+  const { loading, setScreenWidth, isPc } = useSystemStore();
   const { userInfo } = useUserStore();
 
   const isChatPage = useMemo(
@@ -72,12 +67,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
     };
   }, [setScreenWidth]);
 
-  const { data: unread = 0 } = useQuery(['getUnreadCount'], getUnreadCount, {
-    enabled: !!userInfo && !!feConfigs.isPlus,
-    refetchInterval: 10000
-  });
-
-  const isHideNavbar = !!pcUnShowLayoutRoute[router.pathname];
+  const isHideNavbar = pcUnShowLayoutRoute[router.pathname];
 
   return (
     <>
@@ -89,7 +79,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
             ) : (
               <>
                 <Box h={'100%'} position={'fixed'} left={0} top={0} w={'64px'}>
-                  <Navbar unread={unread} />
+                  <Navbar unread={100} />
                 </Box>
                 <Box h={'100%'} ml={'70px'} overflow={'overlay'}>
                   <Auth>{children}</Auth>
@@ -109,14 +99,13 @@ const Layout = ({ children }: { children: JSX.Element }) => {
                     <Auth>{children}</Auth>
                   </Box>
                   <Box h={'50px'} borderTop={'1px solid rgba(0,0,0,0.1)'}>
-                    <NavbarPhone unread={unread} />
+                    <NavbarPhone unread={100} />
                   </Box>
                 </Flex>
               )}
             </Box>
           </>
         )}
-
         {!!userInfo && <UpdateInviteModal />}
       </Box>
       <Loading loading={loading} zIndex={999999} />

@@ -1,18 +1,19 @@
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'next-i18next';
 import React, { useState, Dispatch, useCallback } from 'react';
 import { FormControl, Flex, Input, Button, Box, Link } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
-import { LoginPageTypeEnum } from '@/constants/user';
-import { postLogin } from '@/web/support/user/api';
-import type { ResLogin } from '@/global/support/api/userRes';
+
 import { useToast } from '@fastgpt/web/hooks/useToast';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { getDocPath } from '@/web/common/system/doc';
-import { useTranslation } from 'next-i18next';
+
 import FormLayout from './components/FormLayout';
+import { setToken } from '@/web/support/user/auth';
+import { LoginPageTypeEnum } from '@/constants/user';
+import type { UserResType } from '@/global/support/api/userRes';
+import { loginByAccount, queryUserInfo } from '@/web/support/user/_api';
 
 interface Props {
   setPageType: Dispatch<`${LoginPageTypeEnum}`>;
-  loginSuccess: (e: ResLogin) => void;
+  loginSuccess: (e: UserResType) => void;
 }
 
 interface LoginFormType {
@@ -21,9 +22,9 @@ interface LoginFormType {
 }
 
 const LoginForm = ({ setPageType, loginSuccess }: Props) => {
-  const { t } = useTranslation();
   const { toast } = useToast();
-  const { feConfigs } = useSystemStore();
+  const { t } = useTranslation();
+
   const {
     register,
     handleSubmit,
@@ -36,12 +37,10 @@ const LoginForm = ({ setPageType, loginSuccess }: Props) => {
     async ({ username, password }: LoginFormType) => {
       setRequesting(true);
       try {
-        loginSuccess(
-          await postLogin({
-            username,
-            password
-          })
-        );
+        const { token } = await loginByAccount({ username, password });
+        setToken(token);
+        const user = await queryUserInfo();
+        loginSuccess(user);
         toast({
           title: '登录成功',
           status: 'success'
@@ -57,17 +56,13 @@ const LoginForm = ({ setPageType, loginSuccess }: Props) => {
     [loginSuccess, toast]
   );
 
-  const isCommunityVersion = feConfigs?.show_register === false && !feConfigs?.isPlus;
-
   const loginOptions = [
-    feConfigs?.show_phoneLogin ? t('support.user.login.Phone number') : '',
-    feConfigs?.show_emailLogin ? t('support.user.login.Email') : '',
+    t('support.user.login.Phone number'),
+    t('support.user.login.Email'),
     t('support.user.login.Username')
-  ].filter(Boolean);
+  ];
 
-  const placeholder = isCommunityVersion
-    ? t('support.user.login.Root login')
-    : loginOptions.join('/');
+  const placeholder = loginOptions.join('/');
 
   return (
     <FormLayout setPageType={setPageType} pageType={LoginPageTypeEnum.passwordLogin}>
@@ -92,11 +87,7 @@ const LoginForm = ({ setPageType, loginSuccess }: Props) => {
           <Input
             bg={'myGray.50'}
             type={'password'}
-            placeholder={
-              isCommunityVersion
-                ? t('support.user.login.Root password placeholder')
-                : t('support.user.login.Password')
-            }
+            placeholder={t('support.user.login.Password')}
             {...register('password', {
               required: true,
               maxLength: {
@@ -106,27 +97,16 @@ const LoginForm = ({ setPageType, loginSuccess }: Props) => {
             })}
           ></Input>
         </FormControl>
-        {feConfigs?.docUrl && (
-          <Flex alignItems={'center'} mt={7} fontSize={'sm'}>
-            {t('support.user.login.Policy tip')}
-            <Link
-              ml={1}
-              href={getDocPath('/docs/agreement/terms/')}
-              target={'_blank'}
-              color={'primary.500'}
-            >
-              {t('support.user.login.Terms')}
-            </Link>
-            <Box mx={1}>{t('support.user.login.And')}</Box>
-            <Link
-              href={getDocPath('/docs/agreement/privacy/')}
-              target={'_blank'}
-              color={'primary.500'}
-            >
-              {t('support.user.login.Privacy')}
-            </Link>
-          </Flex>
-        )}
+        <Flex alignItems={'center'} mt={7} fontSize={'sm'}>
+          {t('support.user.login.Policy tip')}
+          <Link ml={1} href={'/docs/agreement/terms/'} target={'_blank'} color={'primary.500'}>
+            {t('support.user.login.Terms')}
+          </Link>
+          <Box mx={1}>{t('support.user.login.And')}</Box>
+          <Link href={'/docs/agreement/privacy/'} target={'_blank'} color={'primary.500'}>
+            {t('support.user.login.Privacy')}
+          </Link>
+        </Flex>
 
         <Button
           type="submit"
@@ -140,29 +120,34 @@ const LoginForm = ({ setPageType, loginSuccess }: Props) => {
           {t('home.Login')}
         </Button>
 
-        {feConfigs?.show_register && (
-          <>
-            <Flex align={'center'} justifyContent={'flex-end'} color={'primary.700'}>
-              <Box
-                cursor={'pointer'}
-                _hover={{ textDecoration: 'underline' }}
-                onClick={() => setPageType('forgetPassword')}
-                fontSize="sm"
-              >
-                {t('support.user.login.Forget Password')}
-              </Box>
-              <Box mx={3} h={'16px'} w={'1.5px'} bg={'myGray.250'}></Box>
-              <Box
-                cursor={'pointer'}
-                _hover={{ textDecoration: 'underline' }}
-                onClick={() => setPageType('register')}
-                fontSize="sm"
-              >
-                {t('support.user.login.Register')}
-              </Box>
-            </Flex>
-          </>
-        )}
+        <Flex align={'center'} justifyContent={'flex-end'} color={'primary.700'}>
+          <Box
+            cursor={'pointer'}
+            _hover={{ textDecoration: 'underline' }}
+            onClick={() => setPageType('forgetPassword')}
+            fontSize="sm"
+          >
+            {t('support.user.login.Forget Password')}
+          </Box>
+          <Box mx={3} h={'16px'} w={'1.5px'} bg={'myGray.250'}></Box>
+          <Box
+            cursor={'pointer'}
+            _hover={{ textDecoration: 'underline' }}
+            onClick={() => setPageType('register')}
+            fontSize="sm"
+          >
+            {t('support.user.login.Register')}
+          </Box>
+          <Box mx={3} h={'16px'} w={'1.5px'} bg={'myGray.250'}></Box>
+          <Box
+            cursor={'pointer'}
+            _hover={{ textDecoration: 'underline' }}
+            onClick={() => setPageType('wechat')}
+            fontSize="sm"
+          >
+            微信登录
+          </Box>
+        </Flex>
       </Box>
     </FormLayout>
   );

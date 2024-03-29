@@ -1,41 +1,27 @@
-import React, { useMemo } from 'react';
-import { Flex, useTheme, Box } from '@chakra-ui/react';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import MyIcon from '@fastgpt/web/components/common/Icon';
-import Avatar from '@/components/Avatar';
-import ToolMenu from './ToolMenu';
-import type { ChatItemType } from '@fastgpt/global/core/chat/type';
-import { useRouter } from 'next/router';
+import React from 'react';
 import { useTranslation } from 'next-i18next';
-import { getChatTitleFromChatMessage } from '@fastgpt/global/core/chat/utils';
-import FillTag from '@fastgpt/web/components/common/Tag/Fill';
+import { Flex, useTheme, Box } from '@chakra-ui/react';
 
-const ChatHeader = ({
-  history,
-  appName,
-  appAvatar,
-  chatModels,
-  appId,
-  showHistory,
-  onOpenSlider
-}: {
+import MyIcon from '@fastgpt/web/components/common/Icon';
+import type { ChatItemType } from '@fastgpt/global/core/chat/type';
+
+import ToolMenu from './ToolMenu';
+import ModelSeletor from '@/pages/chat/components/ModelSeletor';
+import { useSystemStore } from '@/web/common/system/useSystemStore';
+
+interface ChatHeaderProps {
+  chatName?: string;
   history: ChatItemType[];
-  appName: string;
-  appAvatar: string;
-  chatModels?: string[];
-  appId?: string;
   showHistory?: boolean;
   onOpenSlider: () => void;
-}) => {
-  const router = useRouter();
+}
+
+const ChatHeader = ({ history, showHistory, onOpenSlider, chatName }: ChatHeaderProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const { isPc } = useSystemStore();
-  const title = useMemo(
-    () =>
-      getChatTitleFromChatMessage(history[history.length - 2], appName || t('core.chat.New Chat')),
-    [appName, history, t]
-  );
+
+  const title = chatName ?? t('core.chat.New Chat');
 
   return (
     <Flex
@@ -46,28 +32,11 @@ const ChatHeader = ({
       color={'myGray.900'}
     >
       {isPc ? (
-        <>
-          <Box mr={3} color={'myGray.1000'}>
-            {title}
-          </Box>
-          <FillTag>
-            <MyIcon name={'history'} w={'14px'} />
-            <Box ml={1}>
-              {history.length === 0
-                ? t('core.chat.New Chat')
-                : t('core.chat.History Amount', { amount: history.length })}
-            </Box>
-          </FillTag>
-          {!!chatModels && chatModels.length > 0 && (
-            <FillTag ml={2} colorSchema={'green'}>
-              <MyIcon name={'core/chat/chatModelTag'} w={'14px'} />
-              <Box ml={1}>{chatModels.join(',')}</Box>
-            </FillTag>
-          )}
-          <Box flex={1} />
-        </>
+        <Box mr={3} fontWeight={'700'} fontSize={18} color={'myGray.1000'}>
+          {title}
+        </Box>
       ) : (
-        <>
+        <React.Fragment>
           {showHistory && (
             <MyIcon
               name={'menu'}
@@ -77,23 +46,19 @@ const ChatHeader = ({
               onClick={onOpenSlider}
             />
           )}
-
           <Flex px={3} alignItems={'center'} flex={'1 0 0'} w={0} justifyContent={'center'}>
-            <Avatar src={appAvatar} w={'16px'} />
-            <Box
-              ml={1}
-              className="textEllipsis"
-              onClick={() => {
-                appId && router.push(`/app/detail?appId=${appId}`);
-              }}
-            >
-              {appName}
+            <MyIcon w="16px" name="core/chat/chatFill" />
+            <Box ml={1} className="textEllipsis">
+              {title}
             </Box>
           </Flex>
-        </>
+        </React.Fragment>
       )}
-      {/* control */}
-      <ToolMenu history={history} />
+      <Flex ml={'auto'} alignItems={'center'} gap={2}>
+        <ModelSeletor />
+        {/* control */}
+        <ToolMenu history={history} />
+      </Flex>
     </Flex>
   );
 };

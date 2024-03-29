@@ -1,5 +1,9 @@
 import { GET, POST, DELETE, PUT } from '@/web/common/api/request';
-import type { ChatHistoryItemType, ChatAppListSchema } from '@fastgpt/global/core/chat/type.d';
+import type {
+  ChatHistoryItemType,
+  ChatAppListSchema,
+  ChatSchema
+} from '@fastgpt/global/core/chat/type.d';
 
 import type {
   CloseCustomFeedbackParams,
@@ -35,6 +39,11 @@ export const getTeamChatInfo = (data: InitTeamChatProps) =>
  */
 export const getChatHistories = (data: GetHistoriesProps) =>
   POST<ChatHistoryItemType[]>('/core/chat/getHistories', data);
+
+/**
+ * add new chat
+ */
+export const addNewChat = (data: { title: string }) => POST<ChatSchema>(`/core/chat/add`, data);
 
 /**
  * delete one history

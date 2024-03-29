@@ -1,20 +1,16 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { devtools, persist } from 'zustand/middleware';
+
 import type { UserUpdateParams } from '@/types/user';
-import type { UserType } from '@fastgpt/global/support/user/type.d';
-import { getTokenLogin, putUserInfo } from '@/web/support/user/api';
-import { FeTeamPlanStatusType } from '@fastgpt/global/support/wallet/sub/type';
-import { getTeamPlanStatus } from './team/api';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
+import { UserResType } from '@/global/support/api/userRes';
+import { queryUserInfo } from '@/web/support/user/_api';
 
 type State = {
-  userInfo: UserType | null;
-  initUserInfo: () => Promise<UserType>;
-  setUserInfo: (user: UserType | null) => void;
+  userInfo: UserResType | null;
+  initUserInfo: () => Promise<UserResType>;
+  setUserInfo: (user: UserResType | null) => void;
   updateUserInfo: (user: UserUpdateParams) => Promise<void>;
-  teamPlanStatus: FeTeamPlanStatusType | null;
-  initTeamPlanStatus: () => Promise<any>;
 };
 
 export const useUserStore = create<State>()(
@@ -23,50 +19,34 @@ export const useUserStore = create<State>()(
       immer((set, get) => ({
         userInfo: null,
         async initUserInfo() {
-          get().initTeamPlanStatus();
-
-          const res = await getTokenLogin();
+          const res = await queryUserInfo();
           get().setUserInfo(res);
-
-          //设置html的fontsize
-          const html = document?.querySelector('html');
-          if (html) {
-            // html.style.fontSize = '16px';
-          }
-
           return res;
         },
-        setUserInfo(user: UserType | null) {
+        setUserInfo(user) {
           set((state) => {
             state.userInfo = user ? user : null;
           });
         },
         async updateUserInfo(user: UserUpdateParams) {
-          const oldInfo = (get().userInfo ? { ...get().userInfo } : null) as UserType | null;
+          const oldInfo = get().userInfo ? { ...get().userInfo } : null;
           set((state) => {
-            if (!state.userInfo) return;
+            if (!state.userInfo) {
+              return;
+            }
             state.userInfo = {
               ...state.userInfo,
               ...user
             };
           });
-          try {
-            await putUserInfo(user);
-          } catch (error) {
-            set((state) => {
-              state.userInfo = oldInfo;
-            });
-            return Promise.reject(error);
-          }
-        },
-        teamPlanStatus: null,
-        initTeamPlanStatus() {
-          return getTeamPlanStatus().then((res) => {
-            set((state) => {
-              state.teamPlanStatus = res;
-            });
-            return res;
-          });
+          // try {
+          //   await putUserInfo(user);
+          // } catch (error) {
+          //   set((state) => {
+          //     state.userInfo = oldInfo;
+          //   });
+          //   return Promise.reject(error);
+          // }
         }
       })),
       {

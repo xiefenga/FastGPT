@@ -1,20 +1,20 @@
-import { loginOut } from '@/web/support/user/api';
+const tokenKey = '@sophonsai::token';
 
-const tokenKey = 'token';
 export const clearToken = () => {
   try {
-    loginOut();
     localStorage.removeItem(tokenKey);
-  } catch (error) {
-    error;
-  }
+  } catch {}
 };
 
 export const setToken = (token: string) => {
-  if (typeof window === 'undefined') return '';
+  if (typeof window === 'undefined') {
+    return '';
+  }
   localStorage.setItem(tokenKey, token);
 };
 export const getToken = () => {
-  if (typeof window === 'undefined') return '';
+  if (typeof window === 'undefined') {
+    return '';
+  }
   return localStorage.getItem(tokenKey) || '';
 };

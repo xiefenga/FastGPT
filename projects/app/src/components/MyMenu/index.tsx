@@ -5,7 +5,7 @@ import MyIcon from '@fastgpt/web/components/common/Icon';
 interface Props {
   width?: number | string;
   offset?: [number, number];
-  Button: React.ReactNode;
+  Button: React.ReactNode | ((open: boolean) => React.ReactNode);
   trigger?: 'hover' | 'click';
   menuList: {
     isActive?: boolean;
@@ -43,6 +43,8 @@ const MyMenu = ({
     }
   });
 
+  const normalizeButton = typeof Button === 'function' ? Button : () => Button;
+
   return (
     <Menu offset={offset} isOpen={isOpen} autoSelect={false} direction={'ltr'} isLazy>
       <Box
@@ -78,7 +80,7 @@ const MyMenu = ({
             bottom={0}
             left={0}
           />
-          <Box position={'relative'}>{Button}</Box>
+          <Box position={'relative'}>{normalizeButton(isOpen)}</Box>
         </Box>
         <MenuList
           minW={isOpen ? `${width}px !important` : 0}
@@ -97,6 +99,7 @@ const MyMenu = ({
                 setIsOpen(false);
                 item.onClick && item.onClick();
               }}
+              bgColor={item.isActive ? 'myGray.50' : ''}
               color={item.isActive ? 'primary.700' : 'myGray.600'}
               whiteSpace={'pre-wrap'}
             >

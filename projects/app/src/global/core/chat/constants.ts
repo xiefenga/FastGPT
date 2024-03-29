@@ -4,8 +4,8 @@ export const defaultChatData: InitChatResponse = {
   chatId: '',
   appId: '',
   app: {
-    name: 'Loading',
-    avatar: '/icon/logo.svg',
+    name: '智子跳动',
+    avatar: '/icon/logo.png',
     intro: '',
     canUse: false
   },

@@ -1,8 +1,11 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import axios from 'axios';
+import { devtools, persist } from 'zustand/middleware';
+
 import { OAuthEnum } from '@fastgpt/global/support/user/constant';
+import { SubPlanType } from '@fastgpt/global/support/wallet/sub/type';
+import { FastGPTFeConfigsType } from '@fastgpt/global/common/system/types';
+import { AppSimpleEditConfigTemplateType } from '@fastgpt/global/core/app/type';
 import type {
   AudioSpeechModelType,
   LLMModelItemType,
@@ -10,12 +13,19 @@ import type {
   VectorModelItemType,
   WhisperModelType
 } from '@fastgpt/global/core/ai/model.d';
+
 import { InitDateResponse } from '@/global/common/api/systemRes';
-import { FastGPTFeConfigsType } from '@fastgpt/global/common/system/types';
-import { SubPlanType } from '@fastgpt/global/support/wallet/sub/type';
-import { AppSimpleEditConfigTemplateType } from '@fastgpt/global/core/app/type';
+import { getModleList } from '@/web/common/system/_api';
+import type { LLMResType } from '@/types/api/system';
+import { useChatStore } from '@/web/core/chat/storeChat';
 
 type LoginStoreType = { provider: `${OAuthEnum}`; lastRoute: string; state: string };
+
+interface ModelItemType {
+  name: string;
+  logo: string;
+  display_name: string;
+}
 
 type State = {
   initd: boolean;
@@ -30,8 +40,11 @@ type State = {
   setScreenWidth: (val: number) => void;
   isPc?: boolean;
   initIsPc(val: boolean): void;
-  gitStar: number;
-  loadGitStar: () => Promise<void>;
+
+  defaultModel: string;
+  modelMap: LLMResType;
+  modelList: ModelItemType[];
+  loadModelList: () => Promise<void>;
 
   feConfigs: FastGPTFeConfigsType;
   subPlans?: SubPlanType;
@@ -51,6 +64,25 @@ export const useSystemStore = create<State>()(
     persist(
       immer((set, get) => ({
         initd: false,
+        defaultModel: '',
+        modelMap: {},
+        modelList: [],
+        async loadModelList() {
+          const list = await getModleList();
+          const setCurrentModel = useChatStore.getState().setCurrentModel;
+          set((state) => {
+            state.modelMap = list;
+            state.modelList = Object.entries(list).map(([name, { display_name, logo }]) => ({
+              name,
+              display_name,
+              logo
+            }));
+            if (state.modelList.length) {
+              state.defaultModel = state.modelList[0].name;
+              setCurrentModel(state.defaultModel);
+            }
+          });
+        },
         setInitd() {
           set((state) => {
             state.initd = true;
@@ -79,26 +111,18 @@ export const useSystemStore = create<State>()(
         setScreenWidth(val: number) {
           set((state) => {
             state.screenWidth = val;
-            state.isPc = val < 900 ? false : true;
+            state.isPc = val >= 900;
           });
         },
         isPc: undefined,
         initIsPc(val: boolean) {
-          if (get().isPc !== undefined) return;
+          if (get().isPc !== undefined) {
+            return;
+          }
 
           set((state) => {
             state.isPc = val;
           });
-        },
-        gitStar: 9300,
-        async loadGitStar() {
-          try {
-            const { data: git } = await axios.get('https://api.github.com/repos/labring/FastGPT');
-
-            set((state) => {
-              state.gitStar = git.stargazers_count;
-            });
-          } catch (error) {}
         },
 
         feConfigs: {},

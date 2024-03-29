@@ -1,17 +1,15 @@
-import React, { useMemo } from 'react';
-import { Box, BoxProps, Flex, Link, LinkProps } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
-import { useUserStore } from '@/web/support/user/useUserStore';
-import { useChatStore } from '@/web/core/chat/storeChat';
-import { HUMAN_ICON } from '@fastgpt/global/common/system/constants';
 import NextLink from 'next/link';
+import React, { useMemo } from 'react';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import { Box, BoxProps, Flex, Link, LinkProps } from '@chakra-ui/react';
+
+import MyIcon from '@fastgpt/web/components/common/Icon';
+import { HUMAN_ICON } from '@fastgpt/global/common/system/constants';
+
 import Badge from '../Badge';
 import Avatar from '../Avatar';
-import MyIcon from '@fastgpt/web/components/common/Icon';
-import { useTranslation } from 'next-i18next';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import MyTooltip from '../MyTooltip';
-import { getDocPath } from '@/web/common/system/doc';
+import { useUserStore } from '@/web/support/user/useUserStore';
 
 export enum NavbarTypeEnum {
   normal = 'normal',
@@ -22,37 +20,29 @@ const Navbar = ({ unread }: { unread: number }) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { userInfo } = useUserStore();
-  const { gitStar, feConfigs } = useSystemStore();
-  const { lastChatAppId, lastChatId } = useChatStore();
+
   const navbarList = useMemo(
     () => [
       {
         label: t('navbar.Chat'),
         icon: 'core/chat/chatLight',
         activeIcon: 'core/chat/chatFill',
-        link: `/chat?appId=${lastChatAppId}&chatId=${lastChatId}`,
+        link: `/chat`,
         activeLink: ['/chat']
       },
       {
-        label: t('navbar.Apps'),
+        label: '智能体',
         icon: 'core/app/aiLight',
         activeIcon: 'core/app/aiFill',
-        link: `/app/list`,
-        activeLink: ['/app/list', '/app/detail']
+        link: `/agent`,
+        activeLink: ['/agent']
       },
       {
-        label: t('navbar.Plugin'),
-        icon: 'common/navbar/pluginLight',
-        activeIcon: 'common/navbar/pluginFill',
-        link: `/plugin/list`,
-        activeLink: ['/plugin/list', '/plugin/edit']
-      },
-      {
-        label: t('navbar.Datasets'),
+        label: t('navbar.KnowledgeBase'),
         icon: 'core/dataset/datasetLight',
         activeIcon: 'core/dataset/datasetFill',
-        link: `/dataset/list`,
-        activeLink: ['/dataset/list', '/dataset/detail']
+        link: `/knowledge-base/list`,
+        activeLink: ['/knowledge-base/list', '/knowledge-base/detail']
       },
       {
         label: t('navbar.Account'),
@@ -62,7 +52,7 @@ const Navbar = ({ unread }: { unread: number }) => {
         activeLink: ['/account']
       }
     ],
-    [lastChatAppId, lastChatId, t]
+    [t]
   );
 
   const itemStyles: BoxProps & LinkProps = {
@@ -92,14 +82,14 @@ const Navbar = ({ unread }: { unread: number }) => {
       w={'100%'}
       userSelect={'none'}
     >
-      {/* logo */}
+      {/* avatar */}
       <Box
-        flex={'0 0 auto'}
         mb={5}
-        border={'2px solid #fff'}
-        borderRadius={'50%'}
-        overflow={'hidden'}
+        flex={'0 0 auto'}
         cursor={'pointer'}
+        overflow={'hidden'}
+        borderRadius={'50%'}
+        border={'2px solid #fff'}
         onClick={() => router.push('/account')}
       >
         <Avatar w={'36px'} h={'36px'} src={userInfo?.avatar} fallbackSrc={HUMAN_ICON} />
@@ -145,7 +135,7 @@ const Navbar = ({ unread }: { unread: number }) => {
           </Box>
         ))}
       </Box>
-
+      {/* 消息列表 */}
       {unread > 0 && (
         <Box>
           <Link
@@ -162,35 +152,6 @@ const Navbar = ({ unread }: { unread: number }) => {
             </Badge>
           </Link>
         </Box>
-      )}
-      {(feConfigs?.docUrl || feConfigs?.chatbotUrl) && (
-        <MyTooltip label={t('common.system.Use Helper')} placement={'right-end'}>
-          <Link
-            {...itemStyles}
-            {...hoverStyle}
-            href={feConfigs?.chatbotUrl || getDocPath('/docs/intro')}
-            target="_blank"
-            mb={0}
-            color={'myGray.500'}
-          >
-            <MyIcon name={'common/courseLight'} width={'24px'} height={'24px'} />
-          </Link>
-        </MyTooltip>
-      )}
-      {feConfigs?.show_git && (
-        <MyTooltip label={`Git Star: ${gitStar}`} placement={'right-end'}>
-          <Link
-            as={NextLink}
-            href="https://github.com/labring/FastGPT"
-            target={'_blank'}
-            {...itemStyles}
-            {...hoverStyle}
-            mt={0}
-            color={'myGray.500'}
-          >
-            <MyIcon name={'common/gitInlight'} width={'26px'} height={'26px'} />
-          </Link>
-        </MyTooltip>
       )}
     </Flex>
   );

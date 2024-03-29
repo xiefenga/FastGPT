@@ -72,6 +72,7 @@ export type AIChatItemValueItemType = {
   tools?: ToolModuleResponseItemType[];
 };
 export type AIChatItemType = {
+  model: string;
   obj: ChatRoleEnum.AI;
   value: AIChatItemValueItemType[];
   userGoodFeedback?: string;
@@ -133,6 +134,13 @@ export type ChatHistoryItemType = HistoryItemType & {
   appId: string;
   top: boolean;
 };
+
+export interface ChatHistoryItem {
+  chatId: string;
+  title: string;
+  customTitle?: string;
+  updateTime: Date;
+}
 
 /* ------- response data ------------ */
 export type ChatHistoryItemResType = DispatchNodeResponseType & {

@@ -1,3 +1,8 @@
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'next-i18next';
+import { useQuery } from '@tanstack/react-query';
 import React, { useCallback, useMemo } from 'react';
 import {
   Box,
@@ -10,41 +15,32 @@ import {
   Progress,
   Grid
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
-import { UserUpdateParams } from '@/types/user';
+
 import { useToast } from '@fastgpt/web/hooks/useToast';
-import { useUserStore } from '@/web/support/user/useUserStore';
-import type { UserType } from '@fastgpt/global/support/user/type.d';
-import { useQuery } from '@tanstack/react-query';
-import dynamic from 'next/dynamic';
-import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
-import { compressImgFileAndUpload } from '@/web/common/file/controller';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { useTranslation } from 'next-i18next';
-import Avatar from '@/components/Avatar';
 import MyIcon from '@fastgpt/web/components/common/Icon';
-import MyTooltip from '@/components/MyTooltip';
-import { useRouter } from 'next/router';
-import { formatStorePrice2Read } from '@fastgpt/global/support/wallet/usage/tools';
-import { putUpdateMemberName } from '@/web/support/user/team/api';
-import { getDocPath } from '@/web/common/system/doc';
+import { formatTime2YMD } from '@fastgpt/global/common/string/time';
 import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants';
 import { standardSubLevelMap } from '@fastgpt/global/support/wallet/sub/constants';
-import { formatTime2YMD } from '@fastgpt/global/common/string/time';
-import { AI_POINT_USAGE_CARD_ROUTE } from '@/web/support/wallet/sub/constants';
 
+import Avatar from '@/components/Avatar';
+import MyTooltip from '@/components/MyTooltip';
+import { UserUpdateParams } from '@/types/user';
+import { UserResType } from '@/global/support/api/userRes';
+import { useUserStore } from '@/web/support/user/useUserStore';
+import { putUpdateMemberName } from '@/web/support/user/team/api';
+import { useSystemStore } from '@/web/common/system/useSystemStore';
+import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
+import { compressImgFileAndUpload } from '@/web/common/file/controller';
+import { AI_POINT_USAGE_CARD_ROUTE } from '@/web/support/wallet/sub/constants';
 import StandardPlanContentList from '@/components/support/wallet/StandardPlanContentList';
+
 const StandDetailModal = dynamic(() => import('./standardDetailModal'));
-const TeamMenu = dynamic(() => import('@/components/support/user/team/TeamMenu'));
 const PayModal = dynamic(() => import('./PayModal'));
 const UpdatePswModal = dynamic(() => import('./UpdatePswModal'));
 const OpenAIAccountModal = dynamic(() => import('./OpenAIAccountModal'));
 
 const Account = () => {
   const { isPc } = useSystemStore();
-  const { teamPlanStatus } = useUserStore();
-  const standardPlan = teamPlanStatus?.standardConstants;
-
   const { initUserInfo } = useUserStore();
 
   useQuery(['init'], initUserInfo);
@@ -59,16 +55,14 @@ const Account = () => {
               <Other />
             </Box>
           </Box>
-          {!!standardPlan && (
-            <Box ml={'45px'} flex={'1 0 0'} maxW={'600px'}>
-              <PlanUsage />
-            </Box>
-          )}
+          <Box ml={'45px'} flex={'1 0 0'} maxW={'600px'}>
+            <PlanUsage />
+          </Box>
         </Flex>
       ) : (
         <>
           <MyInfo />
-          {!!standardPlan && <PlanUsage />}
+          <PlanUsage />
           <Other />
         </>
       )}
@@ -80,36 +74,36 @@ export default React.memo(Account);
 
 const MyInfo = () => {
   const theme = useTheme();
-  const { feConfigs } = useSystemStore();
   const { t } = useTranslation();
   const { userInfo, updateUserInfo } = useUserStore();
   const { reset } = useForm<UserUpdateParams>({
-    defaultValues: userInfo as UserType
+    defaultValues: userInfo as UserResType
   });
   const { isPc } = useSystemStore();
 
   const { toast } = useToast();
+
   const {
     isOpen: isOpenPayModal,
     onClose: onClosePayModal,
     onOpen: onOpenPayModal
   } = useDisclosure();
+
   const {
     isOpen: isOpenUpdatePsw,
     onClose: onCloseUpdatePsw,
     onOpen: onOpenUpdatePsw
   } = useDisclosure();
+
   const { File, onOpen: onOpenSelectFile } = useSelectFile({
     fileType: '.jpg,.png',
     multiple: false
   });
 
   const onclickSave = useCallback(
-    async (data: UserType) => {
+    async (data: UserResType) => {
       await updateUserInfo({
-        avatar: data.avatar,
-        timezone: data.timezone,
-        openaiAccount: data.openaiAccount
+        avatar: data.avatar
       });
       reset(data);
       toast({
@@ -123,7 +117,9 @@ const MyInfo = () => {
   const onSelectFile = useCallback(
     async (e: File[]) => {
       const file = e[0];
-      if (!file || !userInfo) return;
+      if (!file || !userInfo) {
+        return;
+      }
       try {
         const src = await compressImgFileAndUpload({
           type: MongoImageTypeEnum.userAvatar,
@@ -132,7 +128,7 @@ const MyInfo = () => {
           maxH: 300
         });
 
-        onclickSave({
+        await onclickSave({
           ...userInfo,
           avatar: src
         });
@@ -160,7 +156,6 @@ const MyInfo = () => {
         {isPc ? (
           <Flex alignItems={'center'} cursor={'pointer'}>
             <Box flex={'0 0 80px'}>{t('support.user.Avatar')}:&nbsp;</Box>
-
             <MyTooltip label={t('common.avatar.Select Avatar')}>
               <Box
                 w={['44px', '56px']}
@@ -205,62 +200,34 @@ const MyInfo = () => {
             </Flex>
           </Flex>
         )}
-        {feConfigs.isPlus && (
-          <Flex mt={[0, 4]} alignItems={'center'}>
-            <Box flex={'0 0 80px'}>{t('user.Member Name')}:&nbsp;</Box>
-            <Input
-              flex={'1 0 0'}
-              defaultValue={userInfo?.team?.memberName || 'Member'}
-              title={t('user.Edit name')}
-              borderColor={'transparent'}
-              transform={'translateX(-11px)'}
-              maxLength={20}
-              onBlur={(e) => {
-                const val = e.target.value;
-                if (val === userInfo?.team?.memberName) return;
-                try {
-                  putUpdateMemberName(val);
-                } catch (error) {}
-              }}
-            />
-          </Flex>
-        )}
+        <Flex mt={[0, 4]} alignItems={'center'}>
+          <Box flex={'0 0 80px'}>{t('user.Member Name')}:&nbsp;</Box>
+          <Input
+            flex={'1 0 0'}
+            defaultValue={userInfo?.nick_name}
+            title={t('user.Edit name')}
+            borderColor={'transparent'}
+            transform={'translateX(-11px)'}
+            maxLength={20}
+            onBlur={(e) => {
+              const val = e.target.value;
+              try {
+                putUpdateMemberName(val);
+              } catch (error) {}
+            }}
+          />
+        </Flex>
         <Flex alignItems={'center'} mt={6}>
           <Box flex={'0 0 80px'}>{t('user.Account')}:&nbsp;</Box>
-          <Box flex={1}>{userInfo?.username}</Box>
+          <Box flex={1}>{userInfo?.user_name}</Box>
         </Flex>
-        {feConfigs.isPlus && (
-          <Flex mt={6} alignItems={'center'}>
-            <Box flex={'0 0 80px'}>{t('user.Password')}:&nbsp;</Box>
-            <Box flex={1}>*****</Box>
-            <Button size={'sm'} variant={'whitePrimary'} onClick={onOpenUpdatePsw}>
-              {t('user.Change')}
-            </Button>
-          </Flex>
-        )}
         <Flex mt={6} alignItems={'center'}>
-          <Box flex={'0 0 80px'}>{t('user.Team')}:&nbsp;</Box>
-          <Box flex={1}>
-            <TeamMenu />
-          </Box>
+          <Box flex={'0 0 80px'}>{t('user.Password')}:&nbsp;</Box>
+          <Box flex={1}>*****</Box>
+          <Button size={'sm'} variant={'whitePrimary'} onClick={onOpenUpdatePsw}>
+            {t('user.Change')}
+          </Button>
         </Flex>
-        {feConfigs.isPlus && (
-          <Box mt={6} whiteSpace={'nowrap'}>
-            <Flex alignItems={'center'}>
-              <Box flex={'0 0 80px'} fontSize={'md'}>
-                {t('user.team.Balance')}:&nbsp;
-              </Box>
-              <Box flex={1}>
-                <strong>{formatStorePrice2Read(userInfo?.team?.balance).toFixed(3)}</strong> 元
-              </Box>
-              {feConfigs?.show_pay && userInfo?.team?.canWrite && (
-                <Button variant={'whitePrimary'} size={'sm'} ml={5} onClick={onOpenPayModal}>
-                  {t('user.Pay')}
-                </Button>
-              )}
-            </Flex>
-          </Box>
-        )}
       </Box>
       {isOpenPayModal && <PayModal onClose={onClosePayModal} />}
       {isOpenUpdatePsw && <UpdatePswModal onClose={onCloseUpdatePsw} />}
@@ -272,10 +239,57 @@ const PlanUsage = () => {
   const { isPc } = useSystemStore();
   const router = useRouter();
   const { t } = useTranslation();
-  const { userInfo, initUserInfo, teamPlanStatus } = useUserStore();
+  const { userInfo, initUserInfo } = useUserStore();
   const { reset } = useForm<UserUpdateParams>({
-    defaultValues: userInfo as UserType
+    defaultValues: userInfo as UserResType
   });
+
+  const teamPlanStatus: any = useMemo(
+    () => ({
+      standard: {
+        _id: '',
+        teamId: '',
+        type: `month`,
+        status: 'active',
+        startTime: new Date(),
+        expiredTime: new Date(),
+        price: 100,
+
+        currentMode: `month`,
+        nextMode: `month`,
+        currentSubLevel: `team`,
+        nextSubLevel: `free`,
+
+        pointPrice: 100,
+        totalPoints: 100,
+        surplusPoints: 100,
+
+        currentExtraDatasetSize: 100
+      },
+      standardConstants: {
+        price: 100, // read price / month
+        pointPrice: 100, // read price/ one thousand
+        totalPoints: 100, // n
+        maxTeamMember: 100,
+        maxAppAmount: 100, // max app or plugin amount
+        maxDatasetAmount: 100,
+        chatHistoryStoreDuration: 100, // n day
+        maxDatasetSize: 100,
+        trainingWeight: 4, // 1~4
+        permissionCustomApiKey: true,
+        permissionCustomCopyright: true, // feature
+        permissionWebsiteSync: true,
+        permissionReRank: true
+      },
+
+      totalPoints: 100,
+      usedPoints: 100,
+      // standard + extra
+      datasetMaxSize: 100,
+      usedDatasetSize: 100
+    }),
+    []
+  );
 
   const {
     isOpen: isOpenStandardModal,
@@ -284,7 +298,10 @@ const PlanUsage = () => {
   } = useDisclosure();
 
   const planName = useMemo(() => {
-    if (!teamPlanStatus?.standard?.currentSubLevel) return '';
+    if (!teamPlanStatus?.standard?.currentSubLevel) {
+      return '';
+    }
+    // @ts-ignore
     return standardSubLevelMap[teamPlanStatus.standard.currentSubLevel].label;
   }, [teamPlanStatus?.standard?.currentSubLevel]);
   const standardPlan = teamPlanStatus?.standard;
@@ -307,8 +324,12 @@ const PlanUsage = () => {
     const rate = teamPlanStatus.usedDatasetSize / teamPlanStatus.datasetMaxSize;
 
     const colorScheme = (() => {
-      if (rate < 0.5) return 'green';
-      if (rate < 0.8) return 'yellow';
+      if (rate < 0.5) {
+        return 'green';
+      }
+      if (rate < 0.8) {
+        return 'yellow';
+      }
       return 'red';
     })();
 
@@ -332,8 +353,12 @@ const PlanUsage = () => {
     const rate = teamPlanStatus.usedPoints / teamPlanStatus.totalPoints;
 
     const colorScheme = (() => {
-      if (rate < 0.5) return 'green';
-      if (rate < 0.8) return 'yellow';
+      if (rate < 0.5) {
+        return 'green';
+      }
+      if (rate < 0.8) {
+        return 'yellow';
+      }
       return 'red';
     })();
 
@@ -451,64 +476,46 @@ const PlanUsage = () => {
     </Box>
   ) : null;
 };
+
 const Other = () => {
   const theme = useTheme();
-  const { toast } = useToast();
-  const { feConfigs, systemVersion } = useSystemStore();
+  const { systemVersion } = useSystemStore();
   const { t } = useTranslation();
-  const { userInfo, updateUserInfo, initUserInfo, teamPlanStatus } = useUserStore();
+  const { userInfo, updateUserInfo } = useUserStore();
   const { reset } = useForm<UserUpdateParams>({
-    defaultValues: userInfo as UserType
+    defaultValues: userInfo as UserResType
   });
 
   const { isOpen: isOpenOpenai, onClose: onCloseOpenai, onOpen: onOpenOpenai } = useDisclosure();
 
-  const onclickSave = useCallback(
-    async (data: UserType) => {
-      await updateUserInfo({
-        avatar: data.avatar,
-        timezone: data.timezone,
-        openaiAccount: data.openaiAccount
-      });
-      reset(data);
-      toast({
-        title: '更新数据成功',
-        status: 'success'
-      });
-    },
-    [reset, toast, updateUserInfo]
-  );
-
   return (
     <Box>
       <Grid gridGap={4} mt={3}>
-        {feConfigs?.docUrl && (
-          <Link
-            bg={'white'}
-            href={getDocPath('/docs/intro')}
-            target="_blank"
-            display={'flex'}
-            py={3}
-            px={6}
-            border={theme.borders.sm}
-            borderWidth={'1.5px'}
-            borderRadius={'md'}
-            alignItems={'center'}
-            userSelect={'none'}
-            textDecoration={'none !important'}
-          >
-            <MyIcon name={'common/courseLight'} w={'18px'} color={'myGray.600'} />
-            <Box ml={2} flex={1}>
-              {t('system.Help Document')}
-            </Box>
-            <Box w={'8px'} h={'8px'} borderRadius={'50%'} bg={'#67c13b'} />
-            <Box fontSize={'md'} ml={2}>
-              V{systemVersion}
-            </Box>
-          </Link>
-        )}
         <Link
-          href={feConfigs.chatbotUrl}
+          bg={'white'}
+          href={'/docs/intro'}
+          target="_blank"
+          display={'flex'}
+          py={3}
+          px={6}
+          border={theme.borders.sm}
+          borderWidth={'1.5px'}
+          borderRadius={'md'}
+          alignItems={'center'}
+          userSelect={'none'}
+          textDecoration={'none !important'}
+        >
+          <MyIcon name={'common/courseLight'} w={'18px'} color={'myGray.600'} />
+          <Box ml={2} flex={1}>
+            {t('system.Help Document')}
+          </Box>
+          <Box w={'8px'} h={'8px'} borderRadius={'50%'} bg={'#67c13b'} />
+          <Box fontSize={'md'} ml={2}>
+            V{systemVersion}
+          </Box>
+        </Link>
+        <Link
+          href={''}
           target="_blank"
           display={'flex'}
           py={3}
@@ -527,42 +534,30 @@ const Other = () => {
           </Box>
         </Link>
 
-        {feConfigs?.show_openai_account && (
-          <Flex
-            bg={'white'}
-            py={4}
-            px={6}
-            border={theme.borders.sm}
-            borderWidth={'1.5px'}
-            borderRadius={'md'}
-            alignItems={'center'}
-            cursor={'pointer'}
-            userSelect={'none'}
-            onClick={onOpenOpenai}
-          >
-            <MyIcon name={'common/openai'} w={'18px'} color={'myGray.600'} />
-            <Box ml={2} flex={1}>
-              OpenAI/OneAPI 账号
-            </Box>
-            <Box
-              w={'9px'}
-              h={'9px'}
-              borderRadius={'50%'}
-              bg={userInfo?.openaiAccount?.key ? '#67c13b' : 'myGray.500'}
-            />
-          </Flex>
-        )}
+        <Flex
+          bg={'white'}
+          py={4}
+          px={6}
+          border={theme.borders.sm}
+          borderWidth={'1.5px'}
+          borderRadius={'md'}
+          alignItems={'center'}
+          cursor={'pointer'}
+          userSelect={'none'}
+          onClick={onOpenOpenai}
+        >
+          <MyIcon name={'common/openai'} w={'18px'} color={'myGray.600'} />
+          <Box ml={2} flex={1}>
+            OpenAI/OneAPI 账号
+          </Box>
+          <Box w={'9px'} h={'9px'} borderRadius={'50%'} bg={'#67c13b'} />
+        </Flex>
       </Grid>
 
-      {isOpenOpenai && userInfo && (
+      {isOpenOpenai && (
         <OpenAIAccountModal
-          defaultData={userInfo?.openaiAccount}
-          onSuccess={(data) =>
-            onclickSave({
-              ...userInfo,
-              openaiAccount: data
-            })
-          }
+          defaultData={{ key: '', baseUrl: '' }}
+          onSuccess={() => Promise.resolve()}
           onClose={onCloseOpenai}
         />
       )}

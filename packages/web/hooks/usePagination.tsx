@@ -94,7 +94,9 @@ export function usePagination<T = any>({
             max={maxPage}
             onBlur={(e) => {
               const val = +e.target.value;
-              if (val === pageNum) return;
+              if (val === pageNum) {
+                return;
+              }
               if (val >= maxPage) {
                 mutate(maxPage);
               } else if (val < 1) {
@@ -107,7 +109,9 @@ export function usePagination<T = any>({
               // @ts-ignore
               const val = +e.target.value;
               if (val && e.keyCode === 13) {
-                if (val === pageNum) return;
+                if (val === pageNum) {
+                  return;
+                }
                 if (val >= maxPage) {
                   mutate(maxPage);
                 } else if (val < 1) {

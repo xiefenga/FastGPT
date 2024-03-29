@@ -1,53 +1,45 @@
-import React, { useMemo, useRef } from 'react';
-import {
-  Box,
-  Flex,
-  Grid,
-  useTheme,
-  useDisclosure,
-  Card,
-  MenuButton,
-  Image,
-  Button
-} from '@chakra-ui/react';
-import { useRouter } from 'next/router';
-import { useDatasetStore } from '@/web/core/dataset/store/dataset';
-import PageContainer from '@/components/PageContainer';
-import { useConfirm } from '@/web/common/hooks/useConfirm';
-import { AddIcon } from '@chakra-ui/icons';
-import { useQuery } from '@tanstack/react-query';
-import {
-  delDatasetById,
-  getDatasetPaths,
-  putDatasetById,
-  postCreateDataset
-} from '@/web/core/dataset/api';
-import { checkTeamExportDatasetLimit } from '@/web/support/user/team/api';
-import { useTranslation } from 'next-i18next';
-import Avatar from '@/components/Avatar';
-import MyIcon from '@fastgpt/web/components/common/Icon';
-import { serviceSideProps } from '@/web/common/utils/i18n';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import { AddIcon } from '@chakra-ui/icons';
+import { useTranslation } from 'next-i18next';
+import React, { useMemo, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Box, Flex, Grid, useDisclosure, Image, Button } from '@chakra-ui/react';
+
+import { useToast } from '@fastgpt/web/hooks/useToast';
+import MyIcon from '@fastgpt/web/components/common/Icon';
+import { getErrText } from '@fastgpt/global/common/error/utils';
+import { DatasetItemType } from '@fastgpt/global/core/dataset/type';
+import { PermissionTypeEnum } from '@fastgpt/global/support/permission/constant';
 import {
   DatasetTypeEnum,
   DatasetTypeMap,
   FolderIcon,
   FolderImgUrl
 } from '@fastgpt/global/core/dataset/constants';
+
 import MyMenu from '@/components/MyMenu';
-import { useRequest } from '@/web/common/hooks/useRequest';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { useEditTitle } from '@/web/common/hooks/useEditTitle';
-import EditFolderModal, { useEditFolder } from '../component/EditFolderModal';
+import Avatar from '@/components/Avatar';
 import { useDrag } from '@/web/common/hooks/useDrag';
-import { useUserStore } from '@/web/support/user/useUserStore';
-import PermissionIconText from '@/components/support/permission/IconText';
-import { PermissionTypeEnum } from '@fastgpt/global/support/permission/constant';
-import { DatasetItemType } from '@fastgpt/global/core/dataset/type';
+import PageContainer from '@/components/PageContainer';
 import ParentPaths from '@/components/common/ParentPaths';
+import { useRequest } from '@/web/common/hooks/useRequest';
+import { serviceSideProps } from '@/web/common/utils/i18n';
+import { useConfirm } from '@/web/common/hooks/useConfirm';
+import { useEditTitle } from '@/web/common/hooks/useEditTitle';
+import { useUserStore } from '@/web/support/user/useUserStore';
+import { useDatasetStore } from '@/web/core/dataset/store/dataset';
+import { useSystemStore } from '@/web/common/system/useSystemStore';
 import DatasetTypeTag from '@/components/core/dataset/DatasetTypeTag';
-import { useToast } from '@fastgpt/web/hooks/useToast';
-import { getErrText } from '@fastgpt/global/common/error/utils';
+import PermissionIconText from '@/components/support/permission/IconText';
+import { checkTeamExportDatasetLimit } from '@/web/support/user/team/api';
+import EditFolderModal, { useEditFolder } from '../component/EditFolderModal';
+import {
+  delDatasetById,
+  getDatasetPaths,
+  putDatasetById,
+  postCreateDataset
+} from '@/web/core/dataset/api';
 
 const CreateModal = dynamic(() => import('./component/CreateModal'), { ssr: false });
 const MoveModal = dynamic(() => import('./component/MoveModal'), { ssr: false });
@@ -146,12 +138,14 @@ const Kb = () => {
     [myDatasets]
   );
 
+  console.log(myDatasets);
+
   return (
     <PageContainer isLoading={isFetching} insertProps={{ px: [5, '48px'] }}>
       <Flex pt={[4, '30px']} alignItems={'center'} justifyContent={'space-between'}>
         {/* url path */}
         <ParentPaths
-          paths={paths.map((path, i) => ({
+          paths={paths.map((path) => ({
             parentId: path.parentId,
             parentName: path.parentName
           }))}
@@ -229,13 +223,15 @@ const Kb = () => {
             position={'relative'}
             data-drag-id={dataset.type === DatasetTypeEnum.folder ? dataset._id : undefined}
             draggable
-            onDragStart={(e) => {
+            onDragStart={() => {
               setDragStartId(dataset._id);
             }}
             onDragOver={(e) => {
               e.preventDefault();
               const targetId = e.currentTarget.getAttribute('data-drag-id');
-              if (!targetId) return;
+              if (!targetId) {
+                return;
+              }
               DatasetTypeEnum.folder && setDragTargetId(targetId);
             }}
             onDragLeave={(e) => {
@@ -244,14 +240,16 @@ const Kb = () => {
             }}
             onDrop={async (e) => {
               e.preventDefault();
-              if (!dragTargetId || !dragStartId || dragTargetId === dragStartId) return;
+              if (!dragTargetId || !dragStartId || dragTargetId === dragStartId) {
+                return;
+              }
               // update parentId
               try {
                 await putDatasetById({
                   id: dragStartId,
                   parentId: dragTargetId
                 });
-                refetch();
+                await refetch();
               } catch (error) {}
               setDragTargetId(undefined);
             }}
@@ -361,7 +359,9 @@ const Kb = () => {
                         onOpenTitleModal({
                           defaultVal: dataset.name,
                           onSuccess: (val) => {
-                            if (val === dataset.name || !val) return;
+                            if (val === dataset.name || !val) {
+                              return;
+                            }
                             updateDataset({ id: dataset._id, name: val });
                           }
                         })
@@ -458,7 +458,7 @@ const Kb = () => {
                 avatar: FolderImgUrl,
                 intro: ''
               });
-              refetch();
+              await refetch();
             } catch (error) {
               return Promise.reject(error);
             }

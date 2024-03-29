@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import {
   Box,
   Button,
@@ -10,19 +12,13 @@ import {
   MenuItem,
   IconButton
 } from '@chakra-ui/react';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { useEditTitle } from '@/web/common/hooks/useEditTitle';
-import { useRouter } from 'next/router';
-import Avatar from '@/components/Avatar';
-import MyTooltip from '@/components/MyTooltip';
+
 import MyIcon from '@fastgpt/web/components/common/Icon';
-import { useTranslation } from 'next-i18next';
+
+import Avatar from '@/components/Avatar';
 import { useConfirm } from '@/web/common/hooks/useConfirm';
-import Tabs from '@/components/Tabs';
-import { useUserStore } from '@/web/support/user/useUserStore';
-import { AppListItemType } from '@fastgpt/global/core/app/type';
-import { useQuery } from '@tanstack/react-query';
-import { TeamMemberRoleEnum } from '@fastgpt/global/support/user/team/constant';
+import { useEditTitle } from '@/web/common/hooks/useEditTitle';
+import { useSystemStore } from '@/web/common/system/useSystemStore';
 
 type HistoryItemType = {
   id: string;
@@ -31,49 +27,36 @@ type HistoryItemType = {
   top?: boolean;
 };
 
-enum TabEnum {
-  'app' = 'app',
-  'history' = 'history'
-}
-
-const ChatHistorySlider = ({
-  appId,
-  appName,
-  appAvatar,
-  history,
-  apps = [],
-  confirmClearText,
-  activeChatId,
-  onChangeChat,
-  onDelHistory,
-  onClearHistory,
-  onSetHistoryTop,
-  onSetCustomTitle,
-  onClose
-}: {
-  appId?: string;
+interface ChatHistorySliderProps {
   appName: string;
   appAvatar: string;
   history: HistoryItemType[];
   activeChatId: string;
-  apps?: AppListItemType[];
   confirmClearText: string;
   onChangeChat: (chatId?: string) => void;
   onDelHistory: (e: { chatId: string }) => void;
   onClearHistory: () => void;
   onSetHistoryTop?: (e: { chatId: string; top: boolean }) => void;
   onSetCustomTitle?: (e: { chatId: string; title: string }) => void;
-  onClose: () => void;
+}
+
+const ChatHistorySlider: React.FC<ChatHistorySliderProps> = ({
+  appName,
+  appAvatar,
+  history,
+  confirmClearText,
+  activeChatId,
+  onChangeChat,
+  onDelHistory,
+  onClearHistory,
+  onSetHistoryTop,
+  onSetCustomTitle
 }) => {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
   const { isPc } = useSystemStore();
-  const { userInfo } = useUserStore();
 
-  const [currentTab, setCurrentTab] = useState<`${TabEnum}`>(TabEnum.history);
-
-  const showApps = apps?.length > 0;
   // custom title edit
   const { onOpenModal, EditModal: EditTitleModal } = useEditTitle({
     title: t('core.chat.Custom History Title'),
@@ -91,66 +74,42 @@ const ChatHistorySlider = ({
     [activeChatId, history, t]
   );
 
-  useQuery(['init'], () => {
-    if (!showApps) {
-      setCurrentTab(TabEnum.history);
-      return null;
-    }
-    return;
-  });
-
-  const canRouteToDetail = useMemo(
-    () => appId && userInfo?.team.role !== TeamMemberRoleEnum.visitor,
-    [appId, userInfo?.team.role]
-  );
-
   return (
     <Flex
-      position={'relative'}
-      flexDirection={'column'}
       w={'100%'}
       h={'100%'}
       bg={'white'}
-      borderRight={['', theme.borders.base]}
       whiteSpace={'nowrap'}
+      position={'relative'}
+      flexDirection={'column'}
+      borderRight={['', theme.borders.base]}
     >
       {isPc && (
-        <MyTooltip label={canRouteToDetail ? t('app.App Detail') : ''} offset={[0, 0]}>
-          <Flex
-            pt={5}
-            pb={2}
-            px={[2, 5]}
-            alignItems={'center'}
-            cursor={canRouteToDetail ? 'pointer' : 'default'}
-            onClick={() =>
-              canRouteToDetail &&
-              router.replace({
-                pathname: '/app/detail',
-                query: { appId }
-              })
-            }
-          >
-            <Avatar src={appAvatar} />
-            <Box flex={'1 0 0'} w={0} ml={2} fontWeight={'bold'} className={'textEllipsis'}>
-              {appName}
-            </Box>
-          </Flex>
-        </MyTooltip>
+        <Flex pt={5} pb={2} px={[2, 5]} alignItems={'center'}>
+          <Avatar src={appAvatar} />
+          <Box flex={'1 0 0'} w={0} ml={2} fontWeight={'bold'} className={'textEllipsis'}>
+            {appName}
+          </Box>
+        </Flex>
       )}
 
       {/* menu */}
       <Flex w={'100%'} px={[2, 5]} h={'36px'} my={5} alignItems={'center'}>
-        {!isPc && appId && (
-          <Tabs
+        {!isPc && (
+          <Box
+            py={1}
+            px={3}
+            mr={4}
             w={'120px'}
-            mr={2}
-            list={[
-              { label: 'App', id: TabEnum.app },
-              { label: t('core.chat.History'), id: TabEnum.history }
-            ]}
-            activeId={currentTab}
-            onChange={(e) => setCurrentTab(e as `${TabEnum}`)}
-          />
+            fontWeight={600}
+            color={'primary.600'}
+            textAlign={'center'}
+            whiteSpace={'nowrap'}
+            borderBottom={'2px solid'}
+            borderBottomColor={'primary.600'}
+          >
+            {t('core.chat.History')}
+          </Box>
         )}
         <Button
           variant={'whitePrimary'}
@@ -165,7 +124,7 @@ const ChatHistorySlider = ({
           {t('core.chat.New Chat')}
         </Button>
 
-        {(isPc || !showApps) && (
+        {isPc && (
           <IconButton
             ml={3}
             h={'100%'}
@@ -182,147 +141,107 @@ const ChatHistorySlider = ({
 
       <Box flex={'1 0 0'} h={0} px={[2, 5]} overflow={'overlay'}>
         {/* chat history */}
-        {(currentTab === TabEnum.history || isPc) && (
-          <>
-            {concatHistory.map((item, i) => (
-              <Flex
-                position={'relative'}
-                key={item.id || `${i}`}
-                alignItems={'center'}
-                py={3}
-                px={4}
-                cursor={'pointer'}
-                userSelect={'none'}
-                borderRadius={'md'}
-                mb={2}
-                _hover={{
-                  bg: 'myGray.100',
-                  '& .more': {
-                    display: 'block'
+        {history.map((item, i) => (
+          <Flex
+            position={'relative'}
+            key={item.id || `${i}`}
+            alignItems={'center'}
+            py={3}
+            px={4}
+            cursor={'pointer'}
+            userSelect={'none'}
+            borderRadius={'md'}
+            mb={2}
+            _hover={{
+              bg: 'myGray.100',
+              '& .more': {
+                display: 'block'
+              }
+            }}
+            bg={item.top ? '#E6F6F6 !important' : ''}
+            {...(item.id === activeChatId
+              ? {
+                  backgroundColor: 'primary.50 !important',
+                  color: 'primary.600'
+                }
+              : {
+                  onClick: () => {
+                    onChangeChat(item.id);
                   }
-                }}
-                bg={item.top ? '#E6F6F6 !important' : ''}
-                {...(item.id === activeChatId
-                  ? {
-                      backgroundColor: 'primary.50 !important',
-                      color: 'primary.600'
-                    }
-                  : {
-                      onClick: () => {
-                        onChangeChat(item.id);
-                      }
-                    })}
-              >
-                <MyIcon
-                  name={item.id === activeChatId ? 'core/chat/chatFill' : 'core/chat/chatLight'}
-                  w={'16px'}
-                />
-                <Box flex={'1 0 0'} ml={3} className="textEllipsis">
-                  {item.customTitle || item.title}
-                </Box>
-                {!!item.id && (
-                  <Box className="more" display={['block', 'none']}>
-                    <Menu autoSelect={false} isLazy offset={[0, 5]}>
-                      <MenuButton
-                        _hover={{ bg: 'white' }}
-                        cursor={'pointer'}
-                        borderRadius={'md'}
+                })}
+          >
+            <MyIcon
+              name={item.id === activeChatId ? 'core/chat/chatFill' : 'core/chat/chatLight'}
+              w={'16px'}
+            />
+            <Box flex={'1 0 0'} ml={3} className="textEllipsis">
+              {item.customTitle || item.title}
+            </Box>
+            {!!item.id && (
+              <Box className="more" display={['block', 'none']}>
+                <Menu autoSelect={false} isLazy offset={[0, 5]}>
+                  <MenuButton
+                    _hover={{ bg: 'white' }}
+                    cursor={'pointer'}
+                    borderRadius={'md'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <MyIcon name={'more'} w={'14px'} p={1} />
+                  </MenuButton>
+                  <MenuList color={'myGray.700'} minW={`90px !important`}>
+                    {onSetHistoryTop && (
+                      <MenuItem
                         onClick={(e) => {
                           e.stopPropagation();
+                          onSetHistoryTop({ chatId: item.id, top: !item.top });
                         }}
                       >
-                        <MyIcon name={'more'} w={'14px'} p={1} />
-                      </MenuButton>
-                      <MenuList color={'myGray.700'} minW={`90px !important`}>
-                        {onSetHistoryTop && (
-                          <MenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSetHistoryTop({ chatId: item.id, top: !item.top });
-                            }}
-                          >
-                            <MyIcon mr={2} name={'core/chat/setTopLight'} w={'16px'}></MyIcon>
-                            {item.top ? t('core.chat.Unpin') : t('core.chat.Pin')}
-                          </MenuItem>
-                        )}
-                        {onSetCustomTitle && (
-                          <MenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onOpenModal({
-                                defaultVal: item.customTitle || item.title,
-                                onSuccess: (e) =>
-                                  onSetCustomTitle({
-                                    chatId: item.id,
-                                    title: e
-                                  })
-                              });
-                            }}
-                          >
-                            <MyIcon mr={2} name={'common/customTitleLight'} w={'16px'}></MyIcon>
-                            {t('common.Custom Title')}
-                          </MenuItem>
-                        )}
-                        <MenuItem
-                          _hover={{ color: 'red.500' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelHistory({ chatId: item.id });
-                            if (item.id === activeChatId) {
-                              onChangeChat();
-                            }
-                          }}
-                        >
-                          <MyIcon mr={2} name={'delete'} w={'16px'}></MyIcon>
-                          {t('common.Delete')}
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </Box>
-                )}
-              </Flex>
-            ))}
-          </>
-        )}
-        {currentTab === TabEnum.app && !isPc && (
-          <>
-            {Array.isArray(apps) &&
-              apps.map((item) => (
-                <Flex
-                  key={item._id}
-                  py={2}
-                  px={3}
-                  mb={3}
-                  borderRadius={'md'}
-                  alignItems={'center'}
-                  {...(item._id === appId
-                    ? {
-                        backgroundColor: 'primary.50 !important',
-                        color: 'primary.600'
-                      }
-                    : {
-                        onClick: () => {
-                          router.replace({
-                            query: {
-                              ...router.query,
-                              appId: item._id
-                            }
+                        <MyIcon mr={2} name={'core/chat/setTopLight'} w={'16px'}></MyIcon>
+                        {item.top ? t('core.chat.Unpin') : t('core.chat.Pin')}
+                      </MenuItem>
+                    )}
+                    {onSetCustomTitle && (
+                      <MenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenModal({
+                            defaultVal: item.customTitle || item.title,
+                            onSuccess: (e) =>
+                              onSetCustomTitle({
+                                chatId: item.id,
+                                title: e
+                              })
                           });
-                          onClose();
+                        }}
+                      >
+                        <MyIcon mr={2} name={'common/customTitleLight'} w={'16px'}></MyIcon>
+                        {t('common.Custom Title')}
+                      </MenuItem>
+                    )}
+                    <MenuItem
+                      _hover={{ color: 'red.500' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelHistory({ chatId: item.id });
+                        if (item.id === activeChatId) {
+                          onChangeChat();
                         }
-                      })}
-                >
-                  <Avatar src={item.avatar} w={'24px'} />
-                  <Box ml={2} className={'textEllipsis'}>
-                    {item.name}
-                  </Box>
-                </Flex>
-              ))}
-          </>
-        )}
+                      }}
+                    >
+                      <MyIcon mr={2} name={'delete'} w={'16px'}></MyIcon>
+                      {t('common.Delete')}
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </Box>
+            )}
+          </Flex>
+        ))}
       </Box>
 
-      {!isPc && appId && (
+      {!isPc && (
         <Flex
           mt={2}
           borderTop={theme.borders.base}

@@ -5,7 +5,7 @@ import MyIcon from '@fastgpt/web/components/common/Icon';
 
 interface Props extends BoxProps {}
 
-const SideBar = (e?: Props) => {
+const SideBar = (e: Props) => {
   const {
     w = ['100%', '0 0 250px', '0 0 270px', '0 0 290px', '0 0 310px'],
     children,
