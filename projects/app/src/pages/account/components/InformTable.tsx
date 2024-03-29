@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Flex, useTheme } from '@chakra-ui/react';
-import { getInforms, readInform } from '@/web/support/user/inform/api';
+
 import type { UserInformSchema } from '@fastgpt/global/support/user/inform/type';
 import { formatTimeToChatTime } from '@/utils/tools';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
@@ -21,7 +21,8 @@ const BillTable = () => {
     getData,
     pageNum
   } = usePagination<UserInformSchema>({
-    api: getInforms,
+    api: () => [],
+    defaultRequest: false,
     pageSize: isPc ? 20 : 10
   });
 
@@ -40,7 +41,7 @@ const BillTable = () => {
             _notLast={{ mb: 3 }}
             onClick={async () => {
               if (!item.read) {
-                await readInform(item._id);
+                // await readInform(item._id);
                 getData(pageNum);
               }
             }}

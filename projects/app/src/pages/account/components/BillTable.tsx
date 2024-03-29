@@ -1,37 +1,20 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import {
-  Button,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Flex,
-  Box,
-  ModalBody
-} from '@chakra-ui/react';
-import { getBills, checkBalancePayResult } from '@/web/support/wallet/bill/api';
-import type { BillSchemaType } from '@fastgpt/global/support/wallet/bill/type.d';
 import dayjs from 'dayjs';
-import { formatStorePrice2Read } from '@fastgpt/global/support/wallet/usage/tools';
+import { useTranslation } from 'next-i18next';
+import React, { useState, useMemo } from 'react';
+import { Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Flex, Box, ModalBody } from '@chakra-ui/react';
+
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyIcon from '@fastgpt/web/components/common/Icon';
-import { useTranslation } from 'next-i18next';
-import {
-  BillTypeEnum,
-  billPayWayMap,
-  billStatusMap,
-  billTypeMap
-} from '@fastgpt/global/support/wallet/bill/constants';
-// import { usePagination } from '@/web/common/hooks/usePagination';
-import MyBox from '@/components/common/MyBox';
-import { useRequest } from '@/web/common/hooks/useRequest';
-import { standardSubLevelMap, subModeMap } from '@fastgpt/global/support/wallet/sub/constants';
 import MySelect from '@fastgpt/web/components/common/MySelect';
 import MyModal from '@fastgpt/web/components/common/CustomModal';
 import { usePagination } from '@fastgpt/web/hooks/usePagination';
+import type { BillSchemaType } from '@fastgpt/global/support/wallet/bill/type.d';
+import { formatStorePrice2Read } from '@fastgpt/global/support/wallet/usage/tools';
+import { standardSubLevelMap, subModeMap } from '@fastgpt/global/support/wallet/sub/constants';
+import { BillTypeEnum, billPayWayMap, billStatusMap, billTypeMap } from '@fastgpt/global/support/wallet/bill/constants';
+
+import MyBox from '@/components/common/MyBox';
+import { useRequest } from '@/web/common/hooks/useRequest';
 
 const BillTable = () => {
   const { t } = useTranslation();
@@ -57,7 +40,7 @@ const BillTable = () => {
     getData,
     total
   } = usePagination<BillSchemaType>({
-    api: getBills,
+    api: () => [],
     pageSize: 20,
     params: {
       type: billType
@@ -68,9 +51,8 @@ const BillTable = () => {
   const { mutate: handleRefreshPayOrder, isLoading: isRefreshing } = useRequest({
     mutationFn: async (payId: string) => {
       try {
-        const data = await checkBalancePayResult(payId);
         toast({
-          title: data,
+          title: '',
           status: 'success'
         });
       } catch (error: any) {
@@ -86,9 +68,9 @@ const BillTable = () => {
     }
   });
 
-  useEffect(() => {
-    getData(1);
-  }, [billType]);
+  // useEffect(() => {
+  //   getData(1);
+  // }, [billType]);
 
   return (
     <MyBox
@@ -109,11 +91,9 @@ const BillTable = () => {
                   list={billTypeList}
                   value={billType}
                   size={'sm'}
-                  onchange={(e) => {
-                    setBillType(e);
-                  }}
+                  onchange={(e) => setBillType(e)}
                   w={'130px'}
-                ></MySelect>
+                />
               </Th>
               <Th>{t('user.Time')}</Th>
               <Th>{t('support.wallet.Amount')}</Th>

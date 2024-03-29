@@ -8,20 +8,19 @@ import { Box, Flex, useTheme } from '@chakra-ui/react';
 import Tabs from '@/components/Tabs';
 import UserInfo from './components/Info';
 import SideTabs from '@/components/SideTabs';
+import { logout } from '@/web/support/user/_api';
+import { clearToken } from '@/web/support/user/auth';
 import PageContainer from '@/components/PageContainer';
 import { useConfirm } from '@/web/common/hooks/useConfirm';
 import { useUserStore } from '@/web/support/user/useUserStore';
 import { serviceSideProps } from '@/web/common/utils/i18n';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { logout } from '@/web/support/user/_api';
-import { clearToken } from '@/web/support/user/auth';
 
 const Promotion = dynamic(() => import('./components/Promotion'));
 const UsageTable = dynamic(() => import('./components/UsageTable'));
 const BillTable = dynamic(() => import('./components/BillTable'));
 const InformTable = dynamic(() => import('./components/InformTable'));
 const ApiKeyTable = dynamic(() => import('./components/ApiKeyTable'));
-const Individuation = dynamic(() => import('./components/Individuation'));
 
 enum TabEnum {
   'info' = 'info',
@@ -29,7 +28,6 @@ enum TabEnum {
   'usage' = 'usage',
   'bill' = 'bill',
   'inform' = 'inform',
-  'individuation' = 'individuation',
   'apikey' = 'apikey',
   'loginout' = 'loginout'
 }
@@ -68,11 +66,6 @@ const Account: React.FC<AccountProps> = ({ currentTab }) => {
       icon: 'support/outlink/apikeyLight',
       label: t('user.apikey.key'),
       id: TabEnum.apikey
-    },
-    {
-      icon: 'support/user/individuation',
-      label: t('support.account.Individuation'),
-      id: TabEnum.individuation
     },
     {
       icon: 'support/user/informLight',
@@ -158,7 +151,6 @@ const Account: React.FC<AccountProps> = ({ currentTab }) => {
             {currentTab === TabEnum.promotion && <Promotion />}
             {currentTab === TabEnum.usage && <UsageTable />}
             {currentTab === TabEnum.bill && <BillTable />}
-            {currentTab === TabEnum.individuation && <Individuation />}
             {currentTab === TabEnum.inform && <InformTable />}
             {currentTab === TabEnum.apikey && <ApiKeyTable />}
           </Box>

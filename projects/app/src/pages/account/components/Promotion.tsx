@@ -1,32 +1,17 @@
+import dayjs from 'dayjs';
 import React from 'react';
-import {
-  Grid,
-  Box,
-  Flex,
-  BoxProps,
-  useTheme,
-  Button,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer
-} from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
-import { useQuery } from '@tanstack/react-query';
-import { getPromotionInitData, getPromotionRecords } from '@/web/support/activity/promotion/api';
-import { useUserStore } from '@/web/support/user/useUserStore';
+import { QuestionOutlineIcon } from '@chakra-ui/icons';
+import { Grid, Box, Flex, BoxProps, useTheme, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
+
+import MyIcon from '@fastgpt/web/components/common/Icon';
+import { useLoading } from '@fastgpt/web/hooks/useLoading';
+import { usePagination } from '@fastgpt/web/hooks/usePagination';
 
 import MyTooltip from '@/components/MyTooltip';
-import { QuestionOutlineIcon } from '@chakra-ui/icons';
 import { useCopyData } from '@/web/common/hooks/useCopyData';
+import { useUserStore } from '@/web/support/user/useUserStore';
 import type { PromotionRecordType } from '@/global/support/api/userRes.d';
-import MyIcon from '@fastgpt/web/components/common/Icon';
-import dayjs from 'dayjs';
-import { usePagination } from '@fastgpt/web/hooks/usePagination';
-import { useLoading } from '@fastgpt/web/hooks/useLoading';
 
 const Promotion = () => {
   const { t } = useTranslation();
@@ -42,14 +27,13 @@ const Promotion = () => {
     pageSize,
     Pagination
   } = usePagination<PromotionRecordType>({
-    api: getPromotionRecords,
-    pageSize: 20
+    api: () => [],
+    pageSize: 20,
+    defaultRequest: false
   });
 
-  const { data: { invitedAmount = 0, earningsAmount = 0 } = {} } = useQuery(
-    ['getPromotionInitData'],
-    getPromotionInitData
-  );
+  const invitedAmount = 0;
+  const earningsAmount = 0;
 
   const statisticsStyles: BoxProps = {
     p: [4, 5],
@@ -82,7 +66,7 @@ const Promotion = () => {
               <QuestionOutlineIcon ml={1} />
             </MyTooltip>
           </Flex>
-          <Box {...titleStyles}>{userInfo?.promotionRate || 15}%</Box>
+          <Box {...titleStyles}>{15}%</Box>
         </Box>
         <Box {...statisticsStyles}>
           <Flex alignItems={'center'} justifyContent={'center'}>
@@ -96,7 +80,7 @@ const Promotion = () => {
             variant={'whitePrimary'}
             fontSize={'sm'}
             onClick={() => {
-              copyData(`${location.origin}/?hiId=${userInfo?._id}`);
+              copyData(`${location.origin}/?hiId=${userInfo?.user_id}`);
             }}
           >
             {t('user.Copy invite url')}
