@@ -1,7 +1,7 @@
-import React from 'react'
-import { Box, Flex } from '@chakra-ui/react'
+import React from 'react';
+import { Box, Flex } from '@chakra-ui/react';
 
-import FormLayout from './components/FormLayout'
+import FormLayout from './components/FormLayout';
 
 const Layout = ({ children }: React.PropsWithChildren) => {
   return (
@@ -29,13 +29,11 @@ const Layout = ({ children }: React.PropsWithChildren) => {
         ]}
       >
         <Box w={['100%', '380px']} flex={'1 0 0'}>
-          <FormLayout>
-            {children}
-          </FormLayout>
+          <FormLayout>{children}</FormLayout>
         </Box>
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

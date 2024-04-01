@@ -1,20 +1,20 @@
-'use client'
-import Link from 'next/link'
+'use client';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import React, { useState, useCallback } from 'react';
 import { FormControl, Box, Input, Button } from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 
-import { registerUser } from '@/web/support/user/_api'
-import { useRouter } from 'next/navigation'
+import { registerUser } from '@/web/support/user/_api';
+import { useRouter } from 'next/navigation';
 
 interface RegisterType {
-  user_name: string
-  nick_name: string
-  phone: string
-  password: string
-  password2: string
+  user_name: string;
+  nick_name: string;
+  phone: string;
+  password: string;
+  password2: string;
   // code: string
 }
 
@@ -23,13 +23,17 @@ const RegisterForm = () => {
 
   const router = useRouter();
 
-  const { register, handleSubmit, getValues, trigger, formState: { errors } } = useForm<RegisterType>({
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    trigger,
+    formState: { errors }
+  } = useForm<RegisterType>({
     mode: 'onBlur'
   });
 
-  const onClickSendCode = async () => {
-
-  }
+  const onClickSendCode = async () => {};
 
   const [requesting, setRequesting] = useState(false);
 
@@ -37,11 +41,11 @@ const RegisterForm = () => {
     async ({ user_name, nick_name, phone, password }: RegisterType) => {
       setRequesting(true);
       try {
-        await registerUser({ user_name, nick_name, phone, password })
+        await registerUser({ user_name, nick_name, phone, password });
         toast({ title: `注册成功`, status: 'success' });
         setTimeout(() => {
-          router.push('/login')
-        }, 500)
+          router.push('/login');
+        }, 500);
       } catch (error: any) {
         toast({
           title: error.message || '注册异常',
@@ -173,7 +177,9 @@ const RegisterForm = () => {
           cursor={'pointer'}
           _hover={{ textDecoration: 'underline' }}
         >
-          <Link replace href={'/login'}>已有账号，去登录</Link>
+          <Link replace href={'/login'}>
+            已有账号，去登录
+          </Link>
         </Box>
       </Box>
     </>

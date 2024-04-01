@@ -11,7 +11,11 @@ import { useLoading } from '@fastgpt/web/hooks/useLoading';
 import { getErrText } from '@fastgpt/global/common/error/utils';
 import { GPTMessages2Chats } from '@fastgpt/global/core/chat/adapt';
 import { getChatTitleFromChatMessage } from '@fastgpt/global/core/chat/utils';
-import { ChatItemValueTypeEnum, ChatRoleEnum, ChatStatusEnum } from '@fastgpt/global/core/chat/constants';
+import {
+  ChatItemValueTypeEnum,
+  ChatRoleEnum,
+  ChatStatusEnum
+} from '@fastgpt/global/core/chat/constants';
 
 import ChatBox from '@/components/ChatBox';
 import SideBar from '@/components/SideBar';
@@ -170,7 +174,7 @@ const Chat: React.FC<PageProps> = ({ chatId }) => {
 
   // 初始化聊天框
   useQuery(['init', { chatId, histories }], () => {
-    console.log('chatId', chatId)
+    console.log('chatId', chatId);
     if (forbidRefresh.current) {
       forbidRefresh.current = false;
       return null;

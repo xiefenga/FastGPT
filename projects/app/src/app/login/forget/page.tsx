@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -8,7 +8,6 @@ import { FormControl, Box, Input, Button } from '@chakra-ui/react';
 import { useToast } from '@fastgpt/web/hooks/useToast';
 
 import { useSendCode } from '@/web/support/user/hooks/useSendCode';
-
 
 interface RegisterType {
   username: string;
@@ -20,7 +19,13 @@ interface RegisterType {
 const RegisterForm = () => {
   const { toast } = useToast();
 
-  const { register, handleSubmit, getValues, trigger, formState: { errors } } = useForm<RegisterType>({
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    trigger,
+    formState: { errors }
+  } = useForm<RegisterType>({
     mode: 'onBlur'
   });
 
@@ -35,37 +40,37 @@ const RegisterForm = () => {
     //   username: getValues('username'),
     //   type: 'findPassword'
     // });
-  }
+  };
 
   const [requesting, setRequesting] = useState(false);
 
   const onclickFindPassword = async ({ username, code, password }: RegisterType) => {
-      setRequesting(true);
-      try {
-        // const { token, user } = await postFindPassword({
-        //   username,
-        //   code,
-        //   password
-        // })
-        // loginSuccess(user);
-        toast({
-          title: `密码已找回`,
-          status: 'success'
-        });
-      } catch (error: any) {
-        toast({
-          title: error.message || '修改密码异常',
-          status: 'error'
-        });
-      }
-      setRequesting(false);
+    setRequesting(true);
+    try {
+      // const { token, user } = await postFindPassword({
+      //   username,
+      //   code,
+      //   password
+      // })
+      // loginSuccess(user);
+      toast({
+        title: `密码已找回`,
+        status: 'success'
+      });
+    } catch (error: any) {
+      toast({
+        title: error.message || '修改密码异常',
+        status: 'error'
+      });
     }
+    setRequesting(false);
+  };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.keyCode === 13 && !e.shiftKey && !requesting) {
       handleSubmit(onclickFindPassword)();
     }
-  }
+  };
 
   return (
     <>
@@ -107,13 +112,13 @@ const RegisterForm = () => {
             fontSize={'sm'}
             {...(codeCountDown > 0
               ? {
-                color: 'myGray.500'
-              }
+                  color: 'myGray.500'
+                }
               : {
-                color: 'primary.700',
-                cursor: 'pointer',
-                onClick: onclickSendCode
-              })}
+                  color: 'primary.700',
+                  cursor: 'pointer',
+                  onClick: onclickSendCode
+                })}
           >
             {sendCodeText}
           </Box>

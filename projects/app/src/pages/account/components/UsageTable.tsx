@@ -3,8 +3,18 @@ import { addDays } from 'date-fns';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'next-i18next';
 import React, { useMemo, useState } from 'react';
-import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Flex, Box, Button } from '@chakra-ui/react';
-
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Flex,
+  Box,
+  Button
+} from '@chakra-ui/react';
 
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useLoading } from '@fastgpt/web/hooks/useLoading';
@@ -13,7 +23,9 @@ import { usePagination } from '@fastgpt/web/hooks/usePagination';
 import { formatNumber } from '@fastgpt/global/common/math/tools';
 import type { UsageItemType } from '@fastgpt/global/support/wallet/usage/type';
 import { UsageSourceEnum, UsageSourceMap } from '@fastgpt/global/support/wallet/usage/constants';
-import DateRangePicker, { type DateRangeType } from '@fastgpt/web/components/common/DateRangePicker';
+import DateRangePicker, {
+  type DateRangeType
+} from '@fastgpt/web/components/common/DateRangePicker';
 
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 
@@ -43,13 +55,18 @@ const UsageTable = () => {
     [t]
   );
 
-  const { data: usages, isLoading, Pagination, getData} = usePagination<UsageItemType>({
+  const {
+    data: usages,
+    isLoading,
+    Pagination,
+    getData
+  } = usePagination<UsageItemType>({
     api: () => [],
     pageSize: isPc ? 20 : 10,
     params: {
       dateStart: dateRange.from || new Date(),
       dateEnd: addDays(dateRange.to || new Date(), 1),
-      source: usageSource,
+      source: usageSource
     },
     defaultRequest: false
   });

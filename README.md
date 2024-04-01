@@ -1,14 +1,8 @@
 <div align="center">
 
-<a href="https://fastgpt.in/"><img src="/.github/imgs/logo.svg" width="120" height="120" alt="fastgpt logo"></a>
+<a href="https://fastgpt.in/"><img src="https://github.com/xiefenga/FastGPT/raw/main/.github/imgs/logo.svg" width="120" height="120" alt="fastgpt logo"></a>
 
 # FastGPT
-
-<p align="center">
-  <a href="./README_en.md">English</a> |
-  <a href="./README.md">简体中文</a> |
-  <a href="./README_ja.md">日语</a>
-</p>
 
 FastGPT 是一个基于 LLM 大语言模型的知识库问答系统，提供开箱即用的数据处理、模型调用等能力。同时可以通过 Flow 可视化进行工作流编排，从而实现复杂的问答场景！
 
@@ -32,8 +26,6 @@ FastGPT 是一个基于 LLM 大语言模型的知识库问答系统，提供开�
   </a>
 </p>
 
-https://github.com/labring/FastGPT/assets/15308462/7d3a38df-eb0e-4388-9250-2409bd33f6d4
-
 ## 🛸 在线使用
 
 - 🌍 海外版：[fastgpt.in](https://fastgpt.in/)
@@ -42,8 +34,8 @@ fastgpt.run 域名会弃用。
 
 |                                    |                                    |
 | ---------------------------------- | ---------------------------------- |
-| ![Demo](./.github/imgs/intro1.png) | ![Demo](./.github/imgs/intro2.png) |
-| ![Demo](./.github/imgs/intro3.png) | ![Demo](./.github/imgs/intro4.png) |
+| ![Demo](https://github.com/xiefenga/FastGPT/raw/main/.github/imgs/intro1.png) | ![Demo](https://github.com/xiefenga/FastGPT/raw/main/.github/imgs/intro2.png) |
+| ![Demo](https://github.com/xiefenga/FastGPT/raw/main/.github/imgs/intro3.png) | ![Demo](https://github.com/xiefenga/FastGPT/raw/main/.github/imgs/intro4.png) |
 
 <a href="#readme">
     <img src="https://img.shields.io/badge/-返回顶部-7d09f1.svg" alt="#" align="right">

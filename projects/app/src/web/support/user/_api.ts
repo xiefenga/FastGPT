@@ -2,12 +2,12 @@ import type { PostLoginProps } from '@fastgpt/global/support/user/api';
 
 import { POST } from '@/web/common/api/sophonsai';
 import type { RequireAtLeastOne } from '@/types/tools';
-import type { UserUpdateParams, UserResType, CreateUserParams } from '@/types/api/user'
+import type { UserUpdateParams, UserResType, CreateUserParams } from '@/types/api/user';
 
 // 退出登录
 export const logout = () => POST('/user/logout');
 
-export const registerUser = (data: CreateUserParams) => POST('/user/register/by_username', data)
+export const registerUser = (data: CreateUserParams) => POST('/user/register/by_username', data);
 
 // 用户名密码登录
 export const loginByAccount = ({ password, username }: PostLoginProps) =>

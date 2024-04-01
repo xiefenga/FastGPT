@@ -1,7 +1,19 @@
 import dayjs from 'dayjs';
 import { useTranslation } from 'next-i18next';
 import React, { useState, useMemo } from 'react';
-import { Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Flex, Box, ModalBody } from '@chakra-ui/react';
+import {
+  Button,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Flex,
+  Box,
+  ModalBody
+} from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyIcon from '@fastgpt/web/components/common/Icon';
@@ -11,7 +23,12 @@ import { usePagination } from '@fastgpt/web/hooks/usePagination';
 import type { BillSchemaType } from '@fastgpt/global/support/wallet/bill/type.d';
 import { formatStorePrice2Read } from '@fastgpt/global/support/wallet/usage/tools';
 import { standardSubLevelMap, subModeMap } from '@fastgpt/global/support/wallet/sub/constants';
-import { BillTypeEnum, billPayWayMap, billStatusMap, billTypeMap } from '@fastgpt/global/support/wallet/bill/constants';
+import {
+  BillTypeEnum,
+  billPayWayMap,
+  billStatusMap,
+  billTypeMap
+} from '@fastgpt/global/support/wallet/bill/constants';
 
 import MyBox from '@/components/common/MyBox';
 import { useRequest } from '@/web/common/hooks/useRequest';

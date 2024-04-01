@@ -1,31 +1,31 @@
-'use client'
-import React from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import { AbsoluteCenter, Box, Button, Flex, Image } from '@chakra-ui/react'
+'use client';
+import React from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { AbsoluteCenter, Box, Button, Flex, Image } from '@chakra-ui/react';
 
-import MyIcon from '@fastgpt/web/components/common/Icon'
-import { LOGO_ICON } from '@fastgpt/global/common/system/constants'
+import MyIcon from '@fastgpt/web/components/common/Icon';
+import { LOGO_ICON } from '@fastgpt/global/common/system/constants';
 
-import { LoginTypeEnum } from '@/constants/login'
-import Divider from '@/components/core/module/Flow/components/modules/Divider'
+import { LoginTypeEnum } from '@/constants/login';
+import Divider from '@/components/core/module/Flow/components/modules/Divider';
 
 interface LoginItemType {
-  label: string
-  type: string
-  icon: string
-  redirectUrl?: string
+  label: string;
+  type: string;
+  icon: string;
+  redirectUrl?: string;
 }
 
 const FormLayout = ({ children }: React.PropsWithChildren) => {
-  const router = useRouter()
+  const router = useRouter();
 
-  const pathname = usePathname()
+  const pathname = usePathname();
 
-  const loginType = pathname?.replace(/^\/login\/?/, '') || LoginTypeEnum.password
+  const loginType = pathname?.replace(/^\/login\/?/, '') || LoginTypeEnum.password;
 
   // @ts-expect-error ignore
   if (!Object.values(LoginTypeEnum).includes(loginType)) {
-    return children
+    return children;
   }
 
   // const redirectUri = `${location.origin}/login/provider`
@@ -46,14 +46,14 @@ const FormLayout = ({ children }: React.PropsWithChildren) => {
     {
       label: '微信登录',
       type: LoginTypeEnum.wechat,
-      icon: 'common/wechatFill',
+      icon: 'common/wechatFill'
     },
     {
       label: '密码登录',
       type: LoginTypeEnum.password,
-      icon: 'support/account/passwordLogin',
-    },
-  ].filter(item => item.type !== loginType) as LoginItemType[]
+      icon: 'support/account/passwordLogin'
+    }
+  ].filter((item) => item.type !== loginType) as LoginItemType[];
 
   return (
     <Flex flexDirection={'column'} h={'100%'}>
@@ -68,25 +68,25 @@ const FormLayout = ({ children }: React.PropsWithChildren) => {
           alignItems={'center'}
           justifyContent={'center'}
         >
-          <Image src={LOGO_ICON} w={'24px'} alt={'icon'}/>
+          <Image src={LOGO_ICON} w={'24px'} alt={'icon'} />
         </Flex>
         <Box ml={3} fontSize={['2xl', '3xl']} fontWeight={'bold'}>
           SophonsAI
         </Box>
       </Flex>
       {children}
-      <Box flex={1}/>
+      <Box flex={1} />
       {loginList.length > 0 && (
         <>
           <Box position={'relative'}>
-            <Divider/>
+            <Divider />
             <AbsoluteCenter bg="white" px="4" color={'myGray.500'}>
               or
             </AbsoluteCenter>
           </Box>
           <Box my={8}>
             {loginList.map((item) => (
-              <Box key={item.type} _notFirst={{mt: 4}}>
+              <Box key={item.type} _notFirst={{ mt: 4 }}>
                 <Button
                   variant={'whitePrimary'}
                   w={'100%'}
@@ -110,10 +110,8 @@ const FormLayout = ({ children }: React.PropsWithChildren) => {
                       // item.redirectUrl && router.replace(item.redirectUrl);
                     } else {
                       router.replace(
-                        item.type === LoginTypeEnum.password
-                          ? '/login'
-                          : `/login/${item.type}`,
-                      )
+                        item.type === LoginTypeEnum.password ? '/login' : `/login/${item.type}`
+                      );
                     }
                   }}
                 >
@@ -125,7 +123,7 @@ const FormLayout = ({ children }: React.PropsWithChildren) => {
         </>
       )}
     </Flex>
-  )
-}
+  );
+};
 
-export default FormLayout
+export default FormLayout;

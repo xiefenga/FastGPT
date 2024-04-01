@@ -2,7 +2,21 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { useTranslation } from 'next-i18next';
 import { QuestionOutlineIcon } from '@chakra-ui/icons';
-import { Grid, Box, Flex, BoxProps, useTheme, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
+import {
+  Grid,
+  Box,
+  Flex,
+  BoxProps,
+  useTheme,
+  Button,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer
+} from '@chakra-ui/react';
 
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useLoading } from '@fastgpt/web/hooks/useLoading';

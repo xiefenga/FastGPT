@@ -4,12 +4,21 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { useQuery } from '@tanstack/react-query';
 import React, { useCallback, useMemo } from 'react';
-import { Box, Flex, Button, useDisclosure, useTheme, Input, Link, Progress, Grid } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Button,
+  useDisclosure,
+  useTheme,
+  Input,
+  Link,
+  Progress,
+  Grid
+} from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { formatTime2YMD } from '@fastgpt/global/common/string/time';
-import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants';
 import { standardSubLevelMap } from '@fastgpt/global/support/wallet/sub/constants';
 
 import Avatar from '@/components/Avatar';
@@ -19,7 +28,6 @@ import { UserUpdateParams } from '@/types/user';
 import { useUserStore } from '@/web/support/user/useUserStore';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
-import { compressImgFileAndUpload } from '@/web/common/file/controller';
 import { AI_POINT_USAGE_CARD_ROUTE } from '@/web/support/wallet/sub/constants';
 import StandardPlanContentList from '@/components/support/wallet/StandardPlanContentList';
 
@@ -72,7 +80,11 @@ const MyInfo = () => {
 
   const { toast } = useToast();
 
-  const { isOpen: isOpenPayModal, onClose: onClosePayModal, onOpen: onOpenPayModal } = useDisclosure();
+  const {
+    isOpen: isOpenPayModal,
+    onClose: onClosePayModal,
+    onOpen: onOpenPayModal
+  } = useDisclosure();
 
   const {
     isOpen: isOpenUpdatePsw,
@@ -106,17 +118,17 @@ const MyInfo = () => {
         return;
       }
       try {
-        const src = await compressImgFileAndUpload({
-          type: MongoImageTypeEnum.userAvatar,
-          file,
-          maxW: 300,
-          maxH: 300
-        });
-
-        await onclickSave({
-          ...userInfo,
-          avatar: src
-        });
+        // const src = await compressImgFileAndUpload({
+        //   type: MongoImageTypeEnum.userAvatar,
+        //   file,
+        //   maxW: 300,
+        //   maxH: 300
+        // });
+        //
+        // await onclickSave({
+        //   ...userInfo,
+        //   avatar: src
+        // });
       } catch (err: any) {
         toast({
           title: typeof err === 'string' ? err : t('common.error.Select avatar failed'),
@@ -129,18 +141,18 @@ const MyInfo = () => {
 
   const changeUserInfo = async (userInfo: Parameters<typeof updateUserInfo>[0]) => {
     try {
-      await updateUserInfo(userInfo)
+      await updateUserInfo(userInfo);
       toast({
         title: '修改成功',
         status: 'success'
       });
     } catch (error: any) {
       toast({
-        title:  error.message || '修改失败',
+        title: error.message || '修改失败',
         status: 'error'
       });
     }
-  }
+  };
 
   return (
     <Box>
@@ -210,9 +222,9 @@ const MyInfo = () => {
             transform={'translateX(-11px)'}
             maxLength={20}
             onBlur={async (e) => {
-              const val = e.target.value
+              const val = e.target.value;
               if (val !== userInfo?.nick_name) {
-                await changeUserInfo({ nick_name: val })
+                await changeUserInfo({ nick_name: val });
               }
             }}
           />
@@ -227,9 +239,9 @@ const MyInfo = () => {
             transform={'translateX(-11px)'}
             maxLength={20}
             onBlur={async (e) => {
-              const val = e.target.value
+              const val = e.target.value;
               if (val !== userInfo?.user_name) {
-                await changeUserInfo({ user_name: val })
+                await changeUserInfo({ user_name: val });
               }
             }}
           />
@@ -244,9 +256,9 @@ const MyInfo = () => {
             transform={'translateX(-11px)'}
             maxLength={20}
             onBlur={async (e) => {
-              const val = e.target.value
+              const val = e.target.value;
               if (val !== userInfo?.phone) {
-                await changeUserInfo({ phone: val })
+                await changeUserInfo({ phone: val });
               }
             }}
           />

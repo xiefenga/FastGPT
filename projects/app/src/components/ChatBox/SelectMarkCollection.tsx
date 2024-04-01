@@ -9,7 +9,9 @@ import dynamic from 'next/dynamic';
 import { AdminFbkType } from '@fastgpt/global/core/chat/type.d';
 import SelectCollections from '@/web/core/dataset/components/SelectCollections';
 
-const InputDataModal = dynamic(() => import('@/pages/knowledge-base/detail/components/InputDataModal'));
+const InputDataModal = dynamic(
+  () => import('@/pages/knowledge-base/detail/components/InputDataModal')
+);
 
 export type AdminMarkType = {
   dataId?: string;

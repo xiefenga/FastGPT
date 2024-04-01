@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
 import '@/web/styles/reset.scss';
-import { Providers } from '@/app/providers'
-import { Box } from '@chakra-ui/react'
+import { Providers } from '@/app/providers';
+import { Box } from '@chakra-ui/react';
 
 const Layout = ({ children }: React.PropsWithChildren) => {
   return (
@@ -15,7 +15,7 @@ const Layout = ({ children }: React.PropsWithChildren) => {
         </Providers>
       </body>
     </html>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

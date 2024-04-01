@@ -10,7 +10,9 @@ import dynamic from 'next/dynamic';
 import MyBox from '@/components/common/MyBox';
 import { SearchScoreTypeEnum, SearchScoreTypeMap } from '@fastgpt/global/core/dataset/constants';
 
-const InputDataModal = dynamic(() => import('@/pages/knowledge-base/detail/components/InputDataModal'));
+const InputDataModal = dynamic(
+  () => import('@/pages/knowledge-base/detail/components/InputDataModal')
+);
 
 type ScoreItemType = SearchDataResponseItemType['score'][0];
 const scoreTheme: Record<

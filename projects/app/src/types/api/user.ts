@@ -24,10 +24,10 @@ export interface LoginResType {
 }
 
 export interface CreateUserParams {
-  user_name: string
-  password: string
-  nick_name: string
-  phone: string
+  user_name: string;
+  password: string;
+  nick_name: string;
+  phone: string;
 }
 
 export interface UserUpdateParams {

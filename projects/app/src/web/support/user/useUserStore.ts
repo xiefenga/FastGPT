@@ -1,10 +1,10 @@
-import { create } from 'zustand'
-import { immer } from 'zustand/middleware/immer'
-import { devtools, persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { devtools, persist } from 'zustand/middleware';
 
-import { queryUserInfo, updateUserInfo } from '@/web/support/user/_api'
-import type { UserResType, UserUpdateParams } from '@/types/api/user'
-import type { RequireAtLeastOne } from '@/types/tools'
+import { queryUserInfo, updateUserInfo } from '@/web/support/user/_api';
+import type { UserResType, UserUpdateParams } from '@/types/api/user';
+import type { RequireAtLeastOne } from '@/types/tools';
 
 type State = {
   userInfo: UserResType | null;
@@ -19,32 +19,32 @@ export const useUserStore = create<State>()(
       immer((set, get) => ({
         userInfo: null,
         async initUserInfo() {
-          const res = await queryUserInfo()
-          get().setUserInfo(res)
-          return res
+          const res = await queryUserInfo();
+          get().setUserInfo(res);
+          return res;
         },
         setUserInfo(user) {
           set((state) => {
-            state.userInfo = user ? user : null
-          })
+            state.userInfo = user ? user : null;
+          });
         },
         async updateUserInfo(user) {
-          await updateUserInfo(user)
+          await updateUserInfo(user);
           set((state) => {
             if (!state.userInfo) {
-              return
+              return;
             }
             state.userInfo = {
               ...state.userInfo,
-              ...user,
-            }
-          })
-        },
+              ...user
+            };
+          });
+        }
       })),
       {
         name: 'userStore',
-        partialize: (state) => ({}),
-      },
-    ),
-  ),
-)
+        partialize: (state) => ({})
+      }
+    )
+  )
+);

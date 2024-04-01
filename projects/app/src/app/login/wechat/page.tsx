@@ -1,9 +1,9 @@
-'use client'
+'use client';
 import React from 'react';
 import { Box, Center } from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
-import MyIcon from '@fastgpt/web/components/common/Icon'
+import MyIcon from '@fastgpt/web/components/common/Icon';
 // import Loading from '@fastgpt/web/components/common/MyLoading';
 
 const WechatForm = () => {
@@ -31,7 +31,7 @@ const WechatForm = () => {
       <Box w={'full'} textAlign={'center'} fontWeight={700} pt={5}>
         微信扫码登录
       </Box>
-      <Box p={5} display={'flex'} w={'full'} justifyContent={'center'} >
+      <Box p={5} display={'flex'} w={'full'} justifyContent={'center'}>
         <Center w={300} h={300} position={'relative'}>
           <MyIcon name="comingSoon" w={300} />
         </Center>

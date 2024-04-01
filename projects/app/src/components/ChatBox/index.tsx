@@ -5,7 +5,16 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { Box, Flex, Checkbox } from '@chakra-ui/react';
-import React, { useCallback, useRef, useState, useMemo, forwardRef, useImperativeHandle, ForwardedRef, useEffect } from 'react';
+import React, {
+  useCallback,
+  useRef,
+  useState,
+  useMemo,
+  forwardRef,
+  useImperativeHandle,
+  ForwardedRef,
+  useEffect
+} from 'react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import { getErrText } from '@fastgpt/global/common/error/utils';
@@ -19,7 +28,11 @@ import type { ChatHistoryItemResType } from '@fastgpt/global/core/chat/type.d';
 import { SseResponseEventEnum } from '@fastgpt/global/core/module/runtime/constants';
 import { ChatItemValueTypeEnum, ChatRoleEnum } from '@fastgpt/global/core/chat/constants';
 import { DispatchNodeResponseKeyEnum } from '@fastgpt/global/core/module/runtime/constants';
-import type { AIChatItemValueItemType, ChatSiteItemType, UserChatItemValueItemType } from '@fastgpt/global/core/chat/type.d';
+import type {
+  AIChatItemValueItemType,
+  ChatSiteItemType,
+  UserChatItemValueItemType
+} from '@fastgpt/global/core/chat/type.d';
 
 import MyTooltip from '../MyTooltip';
 import MessageInput from './MessageInput';
@@ -31,7 +44,13 @@ import { useChatStore } from '@/web/core/chat/storeChat';
 import type { AdminMarkType } from './SelectMarkCollection';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { EventNameEnum, eventBus } from '@/web/common/utils/eventbus';
-import type { generatingMessageProps, StartChatFnProps, ComponentRef, ChatBoxInputType, ChatBoxInputFormType } from './type.d';
+import type {
+  generatingMessageProps,
+  StartChatFnProps,
+  ComponentRef,
+  ChatBoxInputType,
+  ChatBoxInputFormType
+} from './type.d';
 
 const ResponseTags = dynamic(() => import('./ResponseTags'));
 const FeedbackModal = dynamic(() => import('./FeedbackModal'));
@@ -401,7 +420,11 @@ const ChatBox = (
           chatController.current = abortSignal;
 
           const messages = chats2GPTMessages({ messages: newChatList, reserveId: true });
-          const { responseData, responseText, isNewChat = false } = await onStartChat({
+          const {
+            responseData,
+            responseText,
+            isNewChat = false
+          } = await onStartChat({
             chatList: newChatList,
             messages,
             controller: abortSignal,
@@ -580,14 +603,14 @@ const ChatBox = (
           )
         );
         // try {
-          // updateChatUserFeedback({
-          //   appId,
-          //   chatId,
-          //   chatItemId: chat.dataId,
-          //   shareId,
-          //   outLinkUid,
-          //   userGoodFeedback: isGoodFeedback ? undefined : 'yes'
-          // });
+        // updateChatUserFeedback({
+        //   appId,
+        //   chatId,
+        //   chatItemId: chat.dataId,
+        //   shareId,
+        //   outLinkUid,
+        //   userGoodFeedback: isGoodFeedback ? undefined : 'yes'
+        // });
         // } catch (error) {}
       };
     },
@@ -844,9 +867,7 @@ const ChatBox = (
                           {item.customFeedbacks.map((text, i) => (
                             <Box key={`${text}${i}`}>
                               <MyTooltip label={t('core.app.feedback.close custom feedback')}>
-                                <Checkbox>
-                                  {text}
-                                </Checkbox>
+                                <Checkbox>{text}</Checkbox>
                               </MyTooltip>
                             </Box>
                           ))}

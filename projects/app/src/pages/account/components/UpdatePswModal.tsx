@@ -4,7 +4,7 @@ import { useTranslation } from 'next-i18next';
 import { ModalBody, Box, Flex, Input, ModalFooter, Button } from '@chakra-ui/react';
 
 import MyModal from '@/components/MyModal';
-import { updateUserInfo } from '@/web/support/user/_api'
+import { updateUserInfo } from '@/web/support/user/_api';
 import { useRequest } from '@/web/common/hooks/useRequest';
 
 type FormType = {
@@ -26,7 +26,7 @@ const UpdatePswModal = ({ onClose }: { onClose: () => void }) => {
       if (data.password !== data.confirmPassword) {
         return Promise.reject(t('common.Password inconsistency'));
       }
-      return updateUserInfo({ password: data.password })
+      return updateUserInfo({ password: data.password });
     },
     onSuccess() {
       onClose();

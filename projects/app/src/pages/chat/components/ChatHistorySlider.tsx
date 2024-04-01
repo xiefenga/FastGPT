@@ -1,7 +1,17 @@
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { Box, Button, Flex, useTheme, Menu, MenuButton, MenuList, MenuItem, IconButton } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  useTheme,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton
+} from '@chakra-ui/react';
 
 import MyIcon from '@fastgpt/web/components/common/Icon';
 
