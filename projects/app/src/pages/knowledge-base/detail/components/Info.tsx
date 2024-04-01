@@ -1,16 +1,14 @@
+import React from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
-import { DeleteIcon } from '@chakra-ui/icons';
-import React, { useState, useMemo } from 'react';
-import { Box, Flex, Button, IconButton, Input, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Button, Input, Textarea } from '@chakra-ui/react';
 
 import Avatar from '@/components/Avatar';
 import MyTooltip from '@/components/MyTooltip';
 import { useConfirm } from '@/web/common/hooks/useConfirm';
 import { useRequest } from '@/web/common/hooks/useRequest';
 import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
-import { compressImgFileAndUpload } from '@/web/common/file/controller';
 import { KnowledgeBaseItemType } from '@/global/core/knowledge-base/type.d';
 import { useKnowledgeBaseStore } from '@/web/core/knowledge-base/store/knowledge-base';
 
@@ -25,7 +23,7 @@ const Info = () => {
 
   const router = useRouter();
 
-  const [refresh, setRefresh] = useState(false);
+  const [refresh, setRefresh] = React.useState(false);
 
   const { openConfirm, ConfirmModal } = useConfirm({
     content: t('core.dataset.Delete Confirm'),
@@ -35,18 +33,6 @@ const Info = () => {
   const { File, onOpen: onOpenSelectFile } = useSelectFile({
     fileType: '.jpg,.png',
     multiple: false
-  });
-
-  /* 点击删除 */
-  const { mutate: onclickDelete, isLoading: isDeleting } = useRequest({
-    mutationFn: () => {
-      return Promise.resolve(null);
-    },
-    onSuccess() {
-      router.replace(`/knowledge-base/list`);
-    },
-    successToast: t('common.Delete Success'),
-    errorToast: t('common.Delete Failed')
   });
 
   const { mutate: onclickSave, isLoading: isSaving } = useRequest({
@@ -80,8 +66,6 @@ const Info = () => {
     },
     errorToast: t('common.avatar.Select Failed')
   });
-
-  const btnLoading = useMemo(() => isDeleting || isSaving, [isDeleting, isSaving]);
 
   return (
     <Box py={5} px={[5, 10]}>
@@ -134,21 +118,13 @@ const Info = () => {
       <Flex mt={10} w={'100%'} alignItems={'flex-end'}>
         <Box flex={['0 0 90px', '0 0 160px']} w={0}></Box>
         <Button
-          isLoading={btnLoading}
           mr={4}
           w={'100px'}
+          isLoading={isSaving}
           onClick={handleSubmit((data) => onclickSave(data))}
         >
           {t('common.Save')}
         </Button>
-        <IconButton
-          isLoading={btnLoading}
-          icon={<DeleteIcon />}
-          aria-label={''}
-          variant={'whiteDanger'}
-          size={'mdSquare'}
-          onClick={openConfirm(onclickDelete)}
-        />
       </Flex>
       <File onSelect={onSelectFile} />
       <ConfirmModal />

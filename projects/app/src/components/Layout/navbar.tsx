@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { Box, BoxProps, Flex, Link, LinkProps } from '@chakra-ui/react';
+import { pathToRegexp, match, parse, compile } from 'path-to-regexp';
 
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { HUMAN_ICON } from '@fastgpt/global/common/system/constants';
@@ -41,8 +42,8 @@ const Navbar = ({ unread }: { unread: number }) => {
         label: t('navbar.KnowledgeBase'),
         icon: 'core/dataset/datasetLight',
         activeIcon: 'core/dataset/datasetFill',
-        link: `/knowledge-base/list`,
-        activeLink: ['/knowledge-base/list', '/knowledge-base/detail']
+        link: `/knowledge-base`,
+        activeLink: ['/knowledge-base', '/knowledge-base/:id']
       },
       {
         label: t('navbar.Account'),
@@ -100,7 +101,9 @@ const Navbar = ({ unread }: { unread: number }) => {
           <Box
             key={item.link}
             {...itemStyles}
-            {...(item.activeLink.includes(router.pathname)
+            {...(item.activeLink
+              .map((item) => pathToRegexp(item))
+              .some((item) => !!item.exec(router.pathname))
               ? {
                   color: 'primary.600',
                   bg: 'white',

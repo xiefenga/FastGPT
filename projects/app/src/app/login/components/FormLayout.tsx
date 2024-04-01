@@ -16,7 +16,7 @@ interface LoginItemType {
   redirectUrl?: string;
 }
 
-const FormLayout = ({ children }: React.PropsWithChildren) => {
+const FormLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const router = useRouter();
 
   const pathname = usePathname();
@@ -25,7 +25,7 @@ const FormLayout = ({ children }: React.PropsWithChildren) => {
 
   // @ts-expect-error ignore
   if (!Object.values(LoginTypeEnum).includes(loginType)) {
-    return children;
+    return children as JSX.Element;
   }
 
   // const redirectUri = `${location.origin}/login/provider`

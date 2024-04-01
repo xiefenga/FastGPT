@@ -86,7 +86,7 @@ function responseError(error: any) {
 
   // 有报错响应
   if (error?.code in TOKEN_ERROR_CODE) {
-    // clearToken()
+    clearToken();
 
     window.location.replace(
       `/login?lastRoute=${encodeURIComponent(location.pathname + location.search)}`
@@ -151,7 +151,8 @@ function createRequest(method: Method) {
 
     return instance
       .request(option)
-      .then((res) => checkRes(res.data) as T)
+      .then((res) => res.data)
+      .then((resp) => (typeof resp === 'object' && resp !== null ? checkRes(resp) : resp) as T)
       .catch((err) => responseError(err))
       .finally(() => requestFinish({ url }));
   };

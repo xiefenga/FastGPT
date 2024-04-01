@@ -18,13 +18,6 @@ import { checkTeamWebSyncLimit } from '@/web/support/user/team/api';
 import { getKnowledgeBaseById, getKnowledgeBaseList } from '@/web/core/knowledge-base/api';
 import { KnowledgeBaseItemType } from '@/global/core/knowledge-base/type.d';
 
-interface KnowledgeBaseListItemType {
-  id: string;
-  name: string;
-  icon: string;
-  desc: string;
-}
-
 const defaultKnowledgeBaseDetail: KnowledgeBaseItemType = {
   id: '',
   name: '',
@@ -36,9 +29,10 @@ const defaultKnowledgeBaseDetail: KnowledgeBaseItemType = {
 
 type State = {
   /* --------  knowledge base --------*/
-  knowledgeBases: KnowledgeBaseListItemType[];
+  loaded: boolean;
+  knowledgeBases: KnowledgeBaseItemType[];
   lodadKnowledgeBases: () => Promise<void>;
-  setKnowledgeBases(val: KnowledgeBaseListItemType[]): void;
+  setKnowledgeBases(val: KnowledgeBaseItemType[]): void;
   knowledgeBaseDetail: KnowledgeBaseItemType;
   loadKnowledgeBaseDetail: (id: string) => Promise<KnowledgeBaseItemType>;
 
@@ -57,16 +51,20 @@ export const useKnowledgeBaseStore = create<State>()(
   devtools(
     persist(
       immer((set, get) => ({
+        loaded: false,
         knowledgeBases: [],
         async lodadKnowledgeBases() {
           const list = await getKnowledgeBaseList();
           set((state) => {
             state.knowledgeBases = list.map((item) => ({
-              id: item,
-              name: item,
+              id: item.id.toString(),
+              name: item.kb_name,
               icon: '',
-              desc: ''
+              desc: item.kb_info,
+              vector_store: item.vs_type,
+              embed_model: item.embed_model
             }));
+            state.loaded = true;
           });
         },
         setKnowledgeBases(val) {
@@ -75,12 +73,20 @@ export const useKnowledgeBaseStore = create<State>()(
           });
         },
         knowledgeBaseDetail: defaultKnowledgeBaseDetail,
-        async loadKnowledgeBaseDetail(id: string) {
-          const result = await getKnowledgeBaseById(id);
-          set((state) => {
-            state.knowledgeBaseDetail = result;
-          });
-          return result;
+        async loadKnowledgeBaseDetail(name: string) {
+          const { loaded, knowledgeBases, lodadKnowledgeBases, loadKnowledgeBaseDetail } = get();
+          if (loaded) {
+            const detail = knowledgeBases.find((item) => item.name === name);
+            if (!detail) {
+              throw new Error('该知识库不存在');
+            }
+            set((state) => {
+              state.knowledgeBaseDetail = detail;
+            });
+            return detail;
+          }
+          await lodadKnowledgeBases();
+          return loadKnowledgeBaseDetail(name);
         },
 
         allDatasets: [],

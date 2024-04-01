@@ -367,6 +367,9 @@ importers:
       nprogress:
         specifier: ^0.2.0
         version: 0.2.0
+      path-to-regexp:
+        specifier: ^6.2.1
+        version: 6.2.1
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -9779,7 +9782,6 @@ packages:
 
   /path-to-regexp@6.2.1:
     resolution: {integrity: sha512-JLyh7xT1kizaEvcaXOQwOc2/Yhw6KZOvPf1S8401UyLk86CU79LN3vl7ztXGm/pZ+YjoyAJ4rxmHwbkBXJX+yw==}
-    dev: true
 
   /path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}

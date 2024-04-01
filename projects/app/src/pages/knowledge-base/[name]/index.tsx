@@ -1,78 +1,69 @@
+import React from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { useQuery } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
 import { Box, Flex, IconButton, useTheme } from '@chakra-ui/react';
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyIcon from '@fastgpt/web/components/common/Icon';
-import { getErrText } from '@fastgpt/global/common/error/utils';
 import { DatasetTypeEnum } from '@fastgpt/global/core/dataset/constants';
 
 import Tabs from '@/components/Tabs';
 import Avatar from '@/components/Avatar';
 import SideTabs from '@/components/SideTabs';
 import MyBox from '@/components/common/MyBox';
+import { TabEnum } from '../detail/constants';
 import PageContainer from '@/components/PageContainer';
-import CollectionCard from './components/CollectionCard';
+import CollectionCard from '../detail/components/CollectionCard';
 import { serviceSideProps } from '@/web/common/utils/i18n';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import DatasetTypeTag from '@/components/core/dataset/DatasetTypeTag';
 import { useKnowledgeBaseStore } from '@/web/core/knowledge-base/store/knowledge-base';
+import { getErrText } from '@fastgpt/global/common/error/utils';
 
-const DataCard = dynamic(() => import('./components/DataCard'));
-const Test = dynamic(() => import('./components/Test'));
-const Info = dynamic(() => import('./components/Info'));
-const Import = dynamic(() => import('./components/Import'));
-
-export enum TabEnum {
-  dataCard = 'dataCard',
-  collectionCard = 'collectionCard',
-  test = 'test',
-  info = 'info',
-  import = 'import'
-}
+const DataCard = dynamic(() => import('../detail/components/DataCard'));
+const Test = dynamic(() => import('../detail/components/Test'));
+const Info = dynamic(() => import('../detail/components/Info'));
+const Import = dynamic(() => import('../detail/components/Import'));
 
 interface PageProps {
-  id: string;
+  name: string;
   currentTab: `${TabEnum}`;
 }
 
-const Detail = ({ id, currentTab }: PageProps) => {
+const Detail = ({ name, currentTab }: PageProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const { toast } = useToast();
   const router = useRouter();
   const { isPc } = useSystemStore();
+
   const { knowledgeBaseDetail, loadKnowledgeBaseDetail } = useKnowledgeBaseStore();
 
   const tabList = [
     {
-      label: t('core.dataset.Collection'),
-      id: TabEnum.collectionCard,
+      label: '文件',
+      id: TabEnum.files,
       icon: 'common/overviewLight'
     },
     { label: t('core.dataset.test.Search Test'), id: TabEnum.test, icon: 'kbTest' },
     { label: t('common.Config'), id: TabEnum.info, icon: 'common/settingLight' }
   ];
 
-  const setCurrentTab = useCallback(
-    (tab: `${TabEnum}`) => {
-      router.replace({
-        query: {
-          id: id,
-          currentTab: tab
-        }
-      });
-    },
-    [id, router]
-  );
+  const setCurrentTab = (tab: `${TabEnum}`) => {
+    router.replace({
+      query: {
+        name,
+        currentTab: tab
+      }
+    });
+  };
 
-  useQuery([id], () => loadKnowledgeBaseDetail(id), {
+  useQuery([name], () => loadKnowledgeBaseDetail(name), {
     onError(err: any) {
-      router.replace(`/knowledge-base/list`);
+      router.replace(`/knowledge-base`);
       toast({
         title: t(getErrText(err, t('common.Load Failed'))),
         status: 'error'
@@ -124,7 +115,7 @@ const Detail = ({ id, currentTab }: PageProps) => {
                 px={3}
                 borderRadius={'md'}
                 _hover={{ bg: 'myGray.100' }}
-                onClick={() => router.replace('/knowledge-base/list')}
+                onClick={() => router.replace('/knowledge-base')}
               >
                 <IconButton
                   mr={3}
@@ -155,9 +146,9 @@ const Detail = ({ id, currentTab }: PageProps) => {
           )}
 
           <Box flex={'1 0 0'} pb={0}>
-            {currentTab === TabEnum.collectionCard && <CollectionCard />}
+            {currentTab === TabEnum.files && <CollectionCard name={name} />}
             {currentTab === TabEnum.dataCard && <DataCard />}
-            {currentTab === TabEnum.test && <Test datasetId={id} />}
+            {currentTab === TabEnum.test && <Test datasetId={name} />}
             {currentTab === TabEnum.info && <Info />}
             {currentTab === TabEnum.import && <Import />}
           </Box>
@@ -168,11 +159,9 @@ const Detail = ({ id, currentTab }: PageProps) => {
 };
 
 export async function getServerSideProps(context: any) {
-  const currentTab = context?.query?.currentTab || TabEnum.collectionCard;
-  const id = context?.query?.id;
-
+  const currentTab = context?.query?.currentTab || TabEnum.files;
   return {
-    props: { currentTab, id, ...(await serviceSideProps(context)) }
+    props: { currentTab, name: context.params.name, ...(await serviceSideProps(context)) }
   };
 }
 

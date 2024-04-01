@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { AddIcon } from '@chakra-ui/icons';
@@ -26,11 +27,12 @@ import { useConfirm } from '@/web/common/hooks/useConfirm';
 import { useEditTitle } from '@/web/common/hooks/useEditTitle';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import DatasetTypeTag from '@/components/core/dataset/DatasetTypeTag';
-import EditFolderModal, { useEditFolder } from '../component/EditFolderModal';
+import EditFolderModal, { useEditFolder } from './component/EditFolderModal';
 import { useKnowledgeBaseStore } from '@/web/core/knowledge-base/store/knowledge-base';
+import { deleteKnowledgeBase } from '@/web/core/knowledge-base/api';
 
-const CreateModal = dynamic(() => import('./component/CreateModal'), { ssr: false });
-const MoveModal = dynamic(() => import('./component/MoveModal'), { ssr: false });
+const CreateModal = dynamic(() => import('./list/component/CreateModal'), { ssr: false });
+const MoveModal = dynamic(() => import('./list/component/MoveModal'), { ssr: false });
 
 const Kb = () => {
   const { t } = useTranslation();
@@ -61,13 +63,14 @@ const Kb = () => {
     onOpen: onOpenCreateModal,
     onClose: onCloseCreateModal
   } = useDisclosure();
+
   const { editFolderData, setEditFolderData } = useEditFolder();
 
   /* 点击删除 */
   const { mutate: onClickDelKnowledgeBase } = useRequest({
     mutationFn: async (id: string) => {
       setLoading(true);
-      // 删除知识库
+      await deleteKnowledgeBase(id);
       return id;
     },
     onSuccess(id: string) {
@@ -109,6 +112,9 @@ const Kb = () => {
 
   return (
     <PageContainer isLoading={isFetching} insertProps={{ px: [5, '48px'] }}>
+      <Head>
+        <title>我的知识库</title>
+      </Head>
       <Flex pt={[4, '30px']} alignItems={'center'} justifyContent={'space-between'}>
         {/* url path */}
         <ParentPaths
@@ -214,7 +220,7 @@ const Kb = () => {
               }
             }}
             onClick={() => {
-              router.push(`/knowledge-base/detail?id=${knowledgeBase.id}`);
+              router.push(`/knowledge-base/${knowledgeBase.name}`);
             }}
           >
             <Box

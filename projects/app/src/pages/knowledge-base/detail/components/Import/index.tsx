@@ -5,7 +5,7 @@ import { useTranslation } from 'next-i18next';
 import { Box, Button, Flex, IconButton } from '@chakra-ui/react';
 
 import Provider from './Provider';
-import { TabEnum } from '../../index';
+import { TabEnum } from '../../constants';
 import { useMyStep } from '@fastgpt/web/hooks/useStep';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useDatasetStore } from '@/web/core/dataset/store/dataset';
@@ -118,7 +118,7 @@ const ImportDataset = () => {
             router.replace({
               query: {
                 ...router.query,
-                currentTab: TabEnum.collectionCard
+                currentTab: TabEnum.files
               }
             })
           }

@@ -24,7 +24,7 @@ import {
   TrainingTypeMap
 } from '@fastgpt/global/core/dataset/constants';
 
-import { TabEnum } from '..';
+import { TabEnum } from '../constants';
 import MyInput from '@/components/MyInput';
 import MyTooltip from '@/components/MyTooltip';
 import RawSourceBox from '@/components/core/dataset/RawSourceBox';
@@ -100,14 +100,9 @@ const DataCard = () => {
             size={'smSquare'}
             borderRadius={'50%'}
             aria-label={''}
-            onClick={() =>
-              router.replace({
-                query: {
-                  id: router.query.id,
-                  currentTab: TabEnum.collectionCard
-                }
-              })
-            }
+            onClick={() => {
+              router.back();
+            }}
           />
           <Flex className="textEllipsis" flex={'1 0 0'} mr={[3, 5]} alignItems={'center'}>
             <Box lineHeight={1.2}>

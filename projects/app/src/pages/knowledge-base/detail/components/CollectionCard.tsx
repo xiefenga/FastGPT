@@ -24,7 +24,7 @@ import {
   DatasetTypeMap
 } from '@fastgpt/global/core/dataset/constants';
 
-import { TabEnum } from '..';
+import { TabEnum } from '../constants';
 import MyMenu from '@/components/MyMenu';
 import MyInput from '@/components/MyInput';
 import EmptyTip from '@/components/EmptyTip';
@@ -38,17 +38,22 @@ import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useRequest } from '@/web/common/hooks/useRequest';
 import { useConfirm } from '@/web/common/hooks/useConfirm';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { getKnowledgeBaseFiles } from '@/web/core/knowledge-base/api';
+import { downloadKnowledgeBaseFile, getKnowledgeBaseFiles } from '@/web/core/knowledge-base/api';
 import { KnowledgeBaseFileItemType } from '@/global/core/knowledge-base/type';
 import SelectCollections from '@/web/core/dataset/components/SelectCollections';
 import EditFolderModal, { useEditFolder } from '../../component/EditFolderModal';
+import { KnowledgeBaseFileItemRes } from '@/types/api/knowledge-base';
+import { fileDownload } from '@/web/common/file/utils';
 
-const CollectionCard = () => {
+interface Props {
+  name: string;
+}
+
+const CollectionCard = ({ name }: Props) => {
   const BoxRef = useRef<HTMLDivElement>(null);
   const lastSearch = useRef('');
   const router = useRouter();
   const { toast } = useToast();
-  const { id } = router.query as { id: string };
   const { t } = useTranslation();
   const { isPc } = useSystemStore();
   const [searchText, setSearchText] = useState('');
@@ -68,10 +73,18 @@ const CollectionCard = () => {
     isLoading: isGetting,
     pageNum,
     pageSize
-  } = usePagination<KnowledgeBaseFileItemType>({
-    api: getKnowledgeBaseFiles,
+  } = usePagination<KnowledgeBaseFileItemRes>({
+    api: async (params) => {
+      const res = await getKnowledgeBaseFiles({ knowledge_base_name: params.name });
+      return {
+        pageNum: 1,
+        pageSize: 10,
+        data: res,
+        total: res.length
+      };
+    },
     pageSize: 20,
-    params: { id, searchText },
+    params: { name },
     onChange() {
       if (BoxRef.current) {
         BoxRef.current.scrollTop = 0;
@@ -262,12 +275,14 @@ const CollectionCard = () => {
                   {t('common.Name')}
                 </Th>
                 <Th borderBottom={'none'} py={4}>
-                  {t('dataset.collections.Data Amount')}
+                  文件大小
                 </Th>
                 <Th borderBottom={'none'} py={4}>
-                  {t('core.dataset.Sync Time')}
+                  创建时间
                 </Th>
-                <Th borderRightRadius={'md'} overflow={'hidden'} borderBottom={'none'} py={4} />
+                <Th borderRightRadius={'md'} overflow={'hidden'} borderBottom={'none'} py={4}>
+                  操作
+                </Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -277,10 +292,10 @@ const CollectionCard = () => {
                   _hover={{ bg: 'myWhite.600' }}
                   cursor={'pointer'}
                   data-drag-id={undefined}
-                  bg={dragTargetId === file.id ? 'primary.100' : ''}
+                  bg={dragTargetId === file.id.toString() ? 'primary.100' : ''}
                   userSelect={'none'}
                   onDragStart={() => {
-                    setDragStartId(file.id);
+                    setDragStartId(file.id.toString());
                   }}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -306,13 +321,12 @@ const CollectionCard = () => {
                     setDragTargetId(undefined);
                   }}
                   onClick={() => {
-                    router.replace({
-                      query: {
-                        ...router.query,
-                        collectionId: file.id,
-                        currentTab: TabEnum.dataCard
-                      }
-                    });
+                    // router.replace({
+                    //   query: {
+                    //     ...router.query,
+                    //     currentTab: TabEnum.dataCard
+                    //   }
+                    // });
                   }}
                 >
                   <Td w={'50px'}>{index + 1}</Td>
@@ -321,13 +335,13 @@ const CollectionCard = () => {
                       <MyIcon name={file.icon as any} w={'16px'} mr={2} />
                       <MyTooltip label={t('common.folder.Drag Tip')} shouldWrapChildren={false}>
                         <Box fontWeight={'bold'} className="textEllipsis">
-                          {file.name}
+                          {file.file_name}
                         </Box>
                       </MyTooltip>
                     </Flex>
                   </Td>
-                  <Td fontSize={'md'}>{file.dataAmount || '-'}</Td>
-                  <Td>{dayjs(file.updateTime).format('YYYY/MM/DD HH:mm')}</Td>
+                  <Td fontSize={'md'}>{file.file_size || '-'}</Td>
+                  <Td>{dayjs(file.create_time).format('YYYY/MM/DD HH:mm')}</Td>
                   <Td onClick={(e) => e.stopPropagation()}>
                     <MyMenu
                       width={100}
@@ -364,7 +378,14 @@ const CollectionCard = () => {
                               下载文件
                             </Flex>
                           ),
-                          onClick: () => {}
+                          onClick: async () => {
+                            const text = await downloadKnowledgeBaseFile({
+                              knowledge_base_name: name,
+                              file_name: file.file_name,
+                              preview: false
+                            });
+                            fileDownload({ text, type: file.file_ext, filename: file.file_name });
+                          }
                         },
                         {
                           label: (
@@ -433,7 +454,7 @@ const CollectionCard = () => {
         )}
         {!!moveCollectionData && (
           <SelectCollections
-            datasetId={id}
+            datasetId={name}
             type="folder"
             defaultSelectedId={[moveCollectionData.collectionId]}
             onClose={() => setMoveCollectionData(undefined)}

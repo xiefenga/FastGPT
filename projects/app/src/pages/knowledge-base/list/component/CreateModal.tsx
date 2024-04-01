@@ -7,18 +7,16 @@ import { Box, Flex, Button, ModalFooter, ModalBody, Input, Textarea } from '@cha
 
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import { getErrText } from '@fastgpt/global/common/error/utils';
-import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants';
 
 import Avatar from '@/components/Avatar';
 import MyModal from '@/components/MyModal';
 import MyTooltip from '@/components/MyTooltip';
-import MyRadio from '@/components/common/MyRadio';
 import { useRequest } from '@/web/common/hooks/useRequest';
 import MySelect from '@fastgpt/web/components/common/MySelect';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
-import type { CreateDatasetParams } from '@/global/core/dataset/api.d';
 import { CreateKnowledgeBaseParams } from '@/global/core/knowledge-base/api';
+import { createKnowledgeBase } from '@/web/core/knowledge-base/api';
 
 const CreateModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
@@ -84,14 +82,14 @@ const CreateModal = ({ onClose }: { onClose: () => void }) => {
 
   /* create a new kb and router to it */
   const { mutate: onClickCreate, isLoading: creating } = useRequest({
-    mutationFn: async (data: CreateDatasetParams) => {
-      // const id = await postCreateDataset(data);
-      // return id;
+    mutationFn: async (data) => {
+      console.log(data);
+      await createKnowledgeBase(data);
     },
     successToast: t('common.Create Success'),
     errorToast: t('common.Create Failed'),
     onSuccess(id) {
-      // router.push(`/knowledge-base/detail?datasetId=${id}`);
+      // router.push(`/knowledge-base/${id}`);
     }
   });
 
@@ -105,34 +103,6 @@ const CreateModal = ({ onClose }: { onClose: () => void }) => {
       w={'450px'}
     >
       <ModalBody>
-        {/*<>*/}
-        {/*  <Box mb={1} color={'myGray.800'} fontWeight={'bold'}>*/}
-        {/*    {t('core.dataset.Dataset Type')}*/}
-        {/*  </Box>*/}
-        {/*  <MyRadio*/}
-        {/*    gridGap={2}*/}
-        {/*    gridTemplateColumns={'repeat(1,1fr)'}*/}
-        {/*    list={[*/}
-        {/*      {*/}
-        {/*        title: t('core.dataset.Common Dataset'),*/}
-        {/*        value: DatasetTypeEnum.dataset,*/}
-        {/*        icon: 'core/dataset/commonDataset',*/}
-        {/*        desc: t('core.dataset.Common Dataset Desc'),*/}
-        {/*      },*/}
-        {/*      {*/}
-        {/*        title: t('core.dataset.Website Dataset'),*/}
-        {/*        value: DatasetTypeEnum.websiteDataset,*/}
-        {/*        icon: 'core/dataset/websiteDataset',*/}
-        {/*        desc: t('core.dataset.Website Dataset Desc'),*/}
-        {/*      },*/}
-        {/*    ]}*/}
-        {/*    value={getValues('type')}*/}
-        {/*    onChange={(e) => {*/}
-        {/*      setValue('type', e as `${DatasetTypeEnum}`)*/}
-        {/*      setRefresh(!refresh)*/}
-        {/*    }}*/}
-        {/*  />*/}
-        {/*</>*/}
         <Box mt={5}>
           <Box color={'myGray.800'} fontWeight={'bold'}>
             知识库名称
@@ -217,23 +187,6 @@ const CreateModal = ({ onClose }: { onClose: () => void }) => {
             />
           </Box>
         </Flex>
-        {/*<Flex mt={6} alignItems={'center'}>*/}
-        {/*  <Box flex={'0 0 100px'}>{t('core.ai.model.Dataset Agent Model')}</Box>*/}
-        {/*  <Box flex={1}>*/}
-        {/*    <MySelect*/}
-        {/*      w={'100%'}*/}
-        {/*      value={getValues('agentModel')}*/}
-        {/*      list={datasetModelList.map((item) => ({*/}
-        {/*        label: item.name,*/}
-        {/*        value: item.model,*/}
-        {/*      }))}*/}
-        {/*      onchange={(e) => {*/}
-        {/*        setValue('agentModel', e)*/}
-        {/*        setRefresh((state) => !state)*/}
-        {/*      }}*/}
-        {/*    />*/}
-        {/*  </Box>*/}
-        {/*</Flex>*/}
       </ModalBody>
 
       <ModalFooter>

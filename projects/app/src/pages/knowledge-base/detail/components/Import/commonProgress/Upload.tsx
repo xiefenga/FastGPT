@@ -18,7 +18,7 @@ import {
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 
-import { TabEnum } from '../../../index';
+import { TabEnum } from '../../../constants';
 import { useImportStore, type FormType } from '../Provider';
 import { useRequest } from '@/web/common/hooks/useRequest';
 import { ImportSourceItemType } from '@/web/core/dataset/type';
