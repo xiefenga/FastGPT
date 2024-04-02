@@ -1,3 +1,4 @@
+import React from 'react';
 import Script from 'next/script';
 import { throttle } from 'lodash';
 import dynamic from 'next/dynamic';
@@ -5,7 +6,7 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'next-i18next';
 import { Box, Flex, Checkbox } from '@chakra-ui/react';
-import React, {
+import {
   useCallback,
   useRef,
   useState,

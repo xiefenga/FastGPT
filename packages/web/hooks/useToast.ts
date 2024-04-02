@@ -1,5 +1,5 @@
 import { useToast as uToast, UseToastOptions } from '@chakra-ui/react';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 export const useToast = (props?: UseToastOptions) => {
   const toast = uToast({

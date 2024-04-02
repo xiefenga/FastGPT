@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormControl, Flex, Input, Button, Box } from '@chakra-ui/react';
 

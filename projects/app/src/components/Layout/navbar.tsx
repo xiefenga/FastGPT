@@ -2,11 +2,11 @@ import NextLink from 'next/link';
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
+import { pathToRegexp } from 'path-to-regexp';
 import { Box, BoxProps, Flex, Link, LinkProps } from '@chakra-ui/react';
-import { pathToRegexp, match, parse, compile } from 'path-to-regexp';
 
 import MyIcon from '@fastgpt/web/components/common/Icon';
-import { HUMAN_ICON } from '@fastgpt/global/common/system/constants';
+import { LOGO_ICON } from '@fastgpt/global/common/system/constants';
 
 import Badge from '../Badge';
 import Avatar from '../Avatar';
@@ -93,7 +93,7 @@ const Navbar = ({ unread }: { unread: number }) => {
         border={'2px solid #fff'}
         onClick={() => router.push('/account')}
       >
-        <Avatar w={'36px'} h={'36px'} src={userInfo?.avatar} fallbackSrc={HUMAN_ICON} />
+        <Avatar w={'36px'} h={'36px'} src={userInfo?.avatar} fallbackSrc={LOGO_ICON} />
       </Box>
       {/* 导航列表 */}
       <Box flex={1}>

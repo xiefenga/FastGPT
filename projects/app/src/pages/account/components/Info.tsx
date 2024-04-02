@@ -30,6 +30,7 @@ import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
 import { AI_POINT_USAGE_CARD_ROUTE } from '@/web/support/wallet/sub/constants';
 import StandardPlanContentList from '@/components/support/wallet/StandardPlanContentList';
+import EditableInput from '@/components/EditableInput';
 
 const StandDetailModal = dynamic(() => import('./standardDetailModal'));
 const PayModal = dynamic(() => import('./PayModal'));
@@ -214,52 +215,41 @@ const MyInfo = () => {
         )}
         <Flex mt={[0, 4]} alignItems={'center'}>
           <Box flex={'0 0 80px'}>{t('user.Member Name')}:&nbsp;</Box>
-          <Input
+          <EditableInput
             flex={'1 0 0'}
-            defaultValue={userInfo?.nick_name}
-            title={t('user.Edit name')}
-            borderColor={'transparent'}
-            transform={'translateX(-11px)'}
             maxLength={20}
-            onBlur={async (e) => {
-              const val = e.target.value;
-              if (val !== userInfo?.nick_name) {
-                await changeUserInfo({ nick_name: val });
-              }
+            title={t('user.Edit name')}
+            transform={'translateX(-11px)'}
+            defaultValue={userInfo?.nick_name}
+            onEdit={async (val) => {
+              await changeUserInfo({ nick_name: val });
             }}
           />
         </Flex>
         <Flex alignItems={'center'} mt={6}>
           <Box flex={'0 0 80px'}>{t('user.Account')}:&nbsp;</Box>
-          <Input
+          <EditableInput
             flex={'1 0 0'}
-            defaultValue={userInfo?.user_name}
-            title={t('user.Edit name')}
-            borderColor={'transparent'}
-            transform={'translateX(-11px)'}
             maxLength={20}
-            onBlur={async (e) => {
-              const val = e.target.value;
-              if (val !== userInfo?.user_name) {
-                await changeUserInfo({ user_name: val });
-              }
+            title={'点击修改账号'}
+            transform={'translateX(-11px)'}
+            defaultValue={userInfo?.user_name}
+            onEdit={async (val) => {
+              await changeUserInfo({ user_name: val });
             }}
           />
         </Flex>
         <Flex alignItems={'center'} mt={6}>
-          <Box flex={'0 0 80px'}>手机号:</Box>
-          <Input
+          <EditableInput
             flex={'1 0 0'}
-            defaultValue={userInfo?.phone}
-            title={'手机号'}
-            borderColor={'transparent'}
-            transform={'translateX(-11px)'}
             maxLength={20}
-            onBlur={async (e) => {
-              const val = e.target.value;
-              if (val !== userInfo?.phone) {
-                await changeUserInfo({ phone: val });
-              }
+            label={<Box flex={'0 0 80px'}>手机号:</Box>}
+            rules={[{ pattern: /^(?:(?:\+|00)86)?1[3-9]\d{9}$/, message: '手机号不合法' }]}
+            title={'点击修改手机号'}
+            transform={'translateX(-11px)'}
+            defaultValue={userInfo?.phone}
+            onEdit={async (val) => {
+              await changeUserInfo({ phone: val });
             }}
           />
         </Flex>
