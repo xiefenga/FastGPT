@@ -1,10 +1,13 @@
+import { Icon } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import type { IconProps } from '@chakra-ui/react';
-import { Icon } from '@chakra-ui/react';
-import { iconPaths } from './constants';
-import type { IconNameType } from './type.d';
 
-const MyIcon = ({ name, w = 'auto', h = 'auto', ...props }: { name: IconNameType } & IconProps) => {
+import { iconPaths } from './constants';
+import type { IconNameType } from './type';
+
+type Props = IconProps & { name: IconNameType };
+
+const MyIcon = ({ name, w = 'auto', h = 'auto', ...props }: Props) => {
   const [IconComponent, setIconComponent] = useState<any>(null);
 
   useEffect(() => {

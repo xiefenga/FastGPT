@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { POST } from '../api/request';
-import { useToast } from '@fastgpt/web/hooks/useToast';
 import { useTranslation } from 'next-i18next';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { useToast } from '@fastgpt/web/hooks/useToast';
 import { getErrText } from '@fastgpt/global/common/error/utils';
 import { OutLinkChatAuthProps } from '@fastgpt/global/support/permission/chat';
+
+import { POST } from '../api/request';
 
 export const useSpeech = (props?: OutLinkChatAuthProps) => {
   const { t } = useTranslation();
@@ -33,7 +35,9 @@ export const useSpeech = (props?: OutLinkChatAuthProps) => {
     const canvasCtx = canvas?.getContext('2d');
     const width = 300;
     const height = 200;
-    if (!canvasCtx) return;
+    if (!canvasCtx) {
+      return;
+    }
     canvasCtx.clearRect(0, 0, width, height);
     canvasCtx.fillStyle = backgroundColor;
     canvasCtx.fillRect(0, 0, width, height);
@@ -132,7 +136,7 @@ export const useSpeech = (props?: OutLinkChatAuthProps) => {
         mediaStream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, []);
+  }, [mediaStream]);
 
   return {
     startSpeak,

@@ -288,6 +288,7 @@ const Chat: React.FC<PageProps> = ({ chatId }) => {
               <ChatBox
                 ref={ChatBoxRef}
                 showEmptyIntro
+                showFileSelector
                 chatId={chatId}
                 feedbackType={'user'}
                 onStartChat={startChat}

@@ -24,7 +24,6 @@ import { ModuleItemType } from '@fastgpt/global/core/module/type.d';
 import { chats2GPTMessages } from '@fastgpt/global/core/chat/adapt';
 import { splitGuideModule } from '@fastgpt/global/core/module/utils';
 import { VariableInputEnum } from '@fastgpt/global/core/module/constants';
-import { OutLinkChatAuthProps } from '@fastgpt/global/support/permission/chat';
 import type { ChatHistoryItemResType } from '@fastgpt/global/core/chat/type.d';
 import { SseResponseEventEnum } from '@fastgpt/global/core/module/runtime/constants';
 import { ChatItemValueTypeEnum, ChatRoleEnum } from '@fastgpt/global/core/chat/constants';
@@ -67,7 +66,7 @@ enum FeedbackTypeEnum {
   hidden = 'hidden'
 }
 
-type Props = OutLinkChatAuthProps & {
+type Props = {
   feedbackType?: `${FeedbackTypeEnum}`;
   showMarkIcon?: boolean; // admin mark dataset
   showVoiceIcon?: boolean;
@@ -79,7 +78,6 @@ type Props = OutLinkChatAuthProps & {
   active?: boolean; // can use
 
   // not chat test params
-  appId?: string;
   chatId?: string;
 
   onUpdateVariable?: (e: Record<string, any>) => void;
@@ -110,12 +108,7 @@ const ChatBox = (
     userGuideModule,
     showFileSelector,
     active = true,
-    appId,
     chatId,
-    shareId,
-    outLinkUid,
-    teamId,
-    teamToken,
     onUpdateVariable,
     onStartChat,
     onDelMessage
@@ -588,7 +581,7 @@ const ChatBox = (
         return;
       }
       return () => {
-        if (!chat.dataId || !chatId || !appId) {
+        if (!chat.dataId || !chatId) {
           return;
         }
 
@@ -615,7 +608,7 @@ const ChatBox = (
         // } catch (error) {}
       };
     },
-    [appId, chatId, feedbackType, outLinkUid, shareId]
+    [chatId, feedbackType]
   );
   const onCloseUserLike = useCallback(
     (chat: ChatSiteItemType) => {
@@ -623,7 +616,7 @@ const ChatBox = (
         return;
       }
       return () => {
-        if (!chat.dataId || !chatId || !appId) {
+        if (!chat.dataId || !chatId) {
           return;
         }
         setChatHistories((state) =>
@@ -641,7 +634,7 @@ const ChatBox = (
         // });
       };
     },
-    [appId, chatId, feedbackType]
+    [chatId, feedbackType]
   );
   const onADdUserDislike = useCallback(
     (chat: ChatSiteItemType) => {
@@ -654,7 +647,7 @@ const ChatBox = (
       }
       if (chat.userBadFeedback) {
         return () => {
-          if (!chat.dataId || !chatId || !appId) {
+          if (!chat.dataId || !chatId) {
             return;
           }
           setChatHistories((state) =>
@@ -678,7 +671,7 @@ const ChatBox = (
         return () => setFeedbackId(chat.dataId);
       }
     },
-    [appId, chatId, feedbackType, outLinkUid, shareId]
+    [chatId, feedbackType]
   );
   const onReadUserDislike = useCallback(
     (chat: ChatSiteItemType) => {
@@ -836,10 +829,6 @@ const ChatBox = (
                         setChatHistories,
                         showVoiceIcon,
                         ttsConfig,
-                        shareId,
-                        outLinkUid,
-                        teamId,
-                        teamToken,
                         statusBoxData,
                         isLastChild: index === chatHistories.length - 1,
                         questionGuides,
@@ -853,10 +842,7 @@ const ChatBox = (
                         onReadUserDislike: onReadUserDislike(item)
                       })}
                     >
-                      <ResponseTags
-                        flowResponses={item.responseData}
-                        showDetail={!shareId && !teamId}
-                      />
+                      <ResponseTags flowResponses={item.responseData} showDetail />
 
                       {/* custom feedback */}
                       {item.customFeedbacks && item.customFeedbacks.length > 0 && (
@@ -904,21 +890,15 @@ const ChatBox = (
           TextareaDom={TextareaDom}
           resetInputVal={resetInputVal}
           showFileSelector={showFileSelector}
-          shareId={shareId}
-          outLinkUid={outLinkUid}
-          teamId={teamId}
-          teamToken={teamToken}
           chatForm={chatForm}
         />
       )}
       {/* user feedback modal */}
-      {!!feedbackId && chatId && appId && (
+      {!!feedbackId && chatId && (
         <FeedbackModal
-          appId={appId}
           chatId={chatId}
+          appId={''}
           chatItemId={feedbackId}
-          shareId={shareId}
-          outLinkUid={outLinkUid}
           onClose={() => setFeedbackId(undefined)}
           onSuccess={(content: string) => {
             setChatHistories((state) =>
@@ -944,7 +924,7 @@ const ChatBox = (
               )
             );
             try {
-              if (!chatId || !appId) {
+              if (!chatId) {
                 return;
               }
               // updateChatUserFeedback({
@@ -964,7 +944,7 @@ const ChatBox = (
           setAdminMarkData={(e) => setAdminMarkData({ ...e, chatItemId: adminMarkData.chatItemId })}
           onClose={() => setAdminMarkData(undefined)}
           onSuccess={(adminFeedback) => {
-            if (!appId || !chatId || !adminMarkData.chatItemId) {
+            if (!chatId || !adminMarkData.chatItemId) {
               return;
             }
             // updateChatAdminFeedback({
@@ -986,7 +966,7 @@ const ChatBox = (
               )
             );
 
-            if (readFeedbackData && chatId && appId) {
+            if (readFeedbackData && chatId) {
               // updateChatUserFeedback({
               //   appId,
               //   chatId,

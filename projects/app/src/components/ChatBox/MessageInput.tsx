@@ -1,24 +1,24 @@
-import { useSpeech } from '@/web/common/hooks/useSpeech';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { Box, Flex, Image, Spinner, Textarea } from '@chakra-ui/react';
-import React, { useRef, useEffect, useCallback } from 'react';
-import { useTranslation } from 'next-i18next';
-import MyTooltip from '../MyTooltip';
-import MyIcon from '@fastgpt/web/components/common/Icon';
-import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
-import { compressImgFileAndUpload } from '@/web/common/file/controller';
-import { customAlphabet } from 'nanoid';
-import { ChatFileTypeEnum } from '@fastgpt/global/core/chat/constants';
 import { addDays } from 'date-fns';
-import { useRequest } from '@/web/common/hooks/useRequest';
-import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants';
-import { OutLinkChatAuthProps } from '@fastgpt/global/support/permission/chat';
-import { ChatBoxInputFormType, ChatBoxInputType, UserInputFileItemType } from './type';
-import { textareaMinH } from './constants';
+import { customAlphabet } from 'nanoid';
+import { useTranslation } from 'next-i18next';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
+import { Box, Flex, Image, Spinner, Textarea } from '@chakra-ui/react';
+
+import MyIcon from '@fastgpt/web/components/common/Icon';
+
+import MyTooltip from '../MyTooltip';
+import { textareaMinH } from './constants';
+import { useSpeech } from '@/web/common/hooks/useSpeech';
+import { useRequest } from '@/web/common/hooks/useRequest';
+import { useSystemStore } from '@/web/common/system/useSystemStore';
+import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
+import { ChatFileTypeEnum } from '@fastgpt/global/core/chat/constants';
+import { ChatBoxInputFormType, ChatBoxInputType, UserInputFileItemType } from './type';
+
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 6);
 
-type Props = OutLinkChatAuthProps & {
+type Props = {
   onSendMessage: (val: ChatBoxInputType) => void;
   onStop: () => void;
   isChatting: boolean;
@@ -35,14 +35,12 @@ const MessageInput: React.FC<Props> = ({
   TextareaDom,
   showFileSelector = false,
   resetInputVal,
-  shareId,
-  outLinkUid,
-  teamId,
-  teamToken,
   chatForm
 }) => {
   const { setValue, watch, control } = chatForm;
+
   const inputValue = watch('input');
+
   const {
     update: updateFile,
     remove: removeFile,
@@ -62,7 +60,8 @@ const MessageInput: React.FC<Props> = ({
     speakingTimeString,
     renderAudioGraph,
     stream
-  } = useSpeech({ shareId, outLinkUid, teamId, teamToken });
+  } = useSpeech();
+
   const { isPc } = useSystemStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { t } = useTranslation();
@@ -75,36 +74,34 @@ const MessageInput: React.FC<Props> = ({
     multiple: true,
     maxCount: 10
   });
+
   const { mutate: uploadFile } = useRequest({
     mutationFn: async ({ file, fileIndex }: { file: UserInputFileItemType; fileIndex: number }) => {
       if (file.type === ChatFileTypeEnum.image && file.rawFile) {
-        try {
-          const url = await compressImgFileAndUpload({
-            type: MongoImageTypeEnum.chatImage,
-            file: file.rawFile,
-            maxW: 4329,
-            maxH: 4329,
-            maxSize: 1024 * 1024 * 5,
-            // 7 day expired.
-            expiredTime: addDays(new Date(), 7),
-            shareId,
-            outLinkUid,
-            teamId,
-            teamToken
-          });
-          updateFile(fileIndex, {
-            ...file,
-            url: `${location.origin}${url}`
-          });
-        } catch (error) {
-          removeFile(fileIndex);
-          console.log(error);
-          return Promise.reject(error);
-        }
+        // try {
+        //   const url = await compressImgFileAndUpload({
+        //     type: MongoImageTypeEnum.chatImage,
+        //     file: file.rawFile,
+        //     maxW: 4329,
+        //     maxH: 4329,
+        //     maxSize: 1024 * 1024 * 5,
+        //     // 7 day expired.
+        //     expiredTime: addDays(new Date(), 7),
+        //   });
+        //   updateFile(fileIndex, {
+        //     ...file,
+        //     url: `${location.origin}${url}`
+        //   });
+        // } catch (error) {
+        //   removeFile(fileIndex);
+        //   console.log(error);
+        //   return Promise.reject(error);
+        // }
       }
     },
     errorToast: t('common.Upload File Failed')
   });
+
   const onSelectFile = useCallback(
     async (files: File[]) => {
       if (!files || files.length === 0) {
@@ -343,15 +340,15 @@ const MessageInput: React.FC<Props> = ({
               const isEnter = e.key.toLowerCase() === 'enter'; // e.keyCode === 13;
               // add \n
               if (isEnter && TextareaDom.current && (e.ctrlKey || e.altKey || e.shiftKey)) {
-                TextareaDom.current.value += '\n';
                 TextareaDom.current.style.height = textareaMinH;
                 TextareaDom.current.style.height = `${TextareaDom.current.scrollHeight}px`;
                 return;
               }
 
-              // 全选内容
-              // @ts-ignore
-              e.key === 'a' && e.ctrlKey && e.target?.select();
+              // 全选内容(ctrl + a)
+              if (e.key === 'a' && e.ctrlKey) {
+                (e.target as HTMLTextAreaElement)?.select();
+              }
 
               if ((isPc || window !== parent) && isEnter && !e.shiftKey) {
                 handleSend();
@@ -376,7 +373,7 @@ const MessageInput: React.FC<Props> = ({
             bottom={['10px', '12px']}
           >
             {/* voice-input */}
-            {!shareId && !havInput && !isChatting && (
+            {!havInput && !isChatting && (
               <>
                 <canvas
                   ref={canvasRef}
