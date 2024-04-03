@@ -1,14 +1,10 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import { getErrText } from '@fastgpt/global/common/error/utils';
-import type { AppTTSConfigType } from '@fastgpt/global/core/module/type.d';
-import { TTSTypeEnum } from '@/constants/app';
 import { useTranslation } from 'next-i18next';
-import type { OutLinkChatAuthProps } from '@fastgpt/global/support/permission/chat.d';
 
-export const useAudioPlay = (props?: OutLinkChatAuthProps & { ttsConfig?: AppTTSConfigType }) => {
+export const useAudioPlay = () => {
   const { t } = useTranslation();
-  const { ttsConfig, shareId, outLinkUid, teamId, teamToken } = props || {};
   const { toast } = useToast();
   const [audio, setAudio] = useState<HTMLAudioElement>();
   const [audioLoading, setAudioLoading] = useState(false);
@@ -17,99 +13,37 @@ export const useAudioPlay = (props?: OutLinkChatAuthProps & { ttsConfig?: AppTTS
 
   // Check whether the voice is supported
   const hasAudio = useMemo(() => {
-    if (ttsConfig?.type === TTSTypeEnum.none) return false;
-    if (ttsConfig?.type === TTSTypeEnum.model) return true;
     const voices = window.speechSynthesis?.getVoices?.() || []; // 获取语言包
     const voice = voices.find((item) => {
       return item.lang === 'zh-CN';
     });
     return !!voice;
-  }, [ttsConfig]);
+  }, []);
 
-  const playAudio = async ({
-    text,
-    chatItemId,
-    buffer
-  }: {
-    text: string;
-    chatItemId?: string;
-    buffer?: Uint8Array;
-  }) =>
+  const playAudio = async ({ text }: { text: string }) =>
     new Promise<{ buffer?: Uint8Array }>(async (resolve, reject) => {
       text = text.replace(/\\n/g, '\n');
       try {
-        // tts play
-        if (audio && ttsConfig && ttsConfig?.type === TTSTypeEnum.model) {
-          setAudioLoading(true);
-
-          /* buffer tts */
-          if (buffer) {
-            playAudioBuffer({ audio, buffer });
-            setAudioLoading(false);
-            return resolve({ buffer });
-          }
-
-          audioController.current = new AbortController();
-
-          /* request tts */
-          const response = await fetch('/api/core/chat/item/getSpeech', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            signal: audioController.current.signal,
-            body: JSON.stringify({
-              chatItemId,
-              ttsConfig,
-              input: text,
-              shareId,
-              outLinkUid,
-              teamId,
-              teamToken
-            })
-          });
-          setAudioLoading(false);
-
-          if (!response.body || !response.ok) {
-            const data = await response.json();
-            toast({
-              status: 'error',
-              title: getErrText(data, t('core.chat.Audio Speech Error'))
-            });
-            return reject(data);
-          }
-
-          const audioBuffer = await readAudioStream({
-            audio,
-            stream: response.body,
-            contentType: 'audio/mpeg'
-          });
-
-          resolve({
-            buffer: audioBuffer
-          });
-        } else {
-          // window speech
-          window.speechSynthesis?.cancel();
-          const msg = new SpeechSynthesisUtterance(text);
-          const voices = window.speechSynthesis?.getVoices?.() || []; // 获取语言包
-          const voice = voices.find((item) => {
-            return item.lang === 'zh-CN';
-          });
-          if (voice) {
-            msg.onstart = () => {
-              setAudioPlaying(true);
-            };
-            msg.onend = () => {
-              setAudioPlaying(false);
-              msg.onstart = null;
-              msg.onend = null;
-            };
-            msg.voice = voice;
-            window.speechSynthesis?.speak(msg);
-          }
-          resolve({});
+        // window speech
+        window.speechSynthesis?.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis?.getVoices?.() || []; // 获取语言包
+        const voice = voices.find((item) => {
+          return item.lang === 'zh-CN';
+        });
+        if (voice) {
+          msg.onstart = () => {
+            setAudioPlaying(true);
+          };
+          msg.onend = () => {
+            setAudioPlaying(false);
+            msg.onstart = null;
+            msg.onend = null;
+          };
+          msg.voice = voice;
+          window.speechSynthesis?.speak(msg);
         }
+        resolve({});
       } catch (error) {
         toast({
           status: 'error',
@@ -232,6 +166,7 @@ export function readAudioStream({
     }
   });
 }
+
 export function playAudioBuffer({
   audio,
   buffer

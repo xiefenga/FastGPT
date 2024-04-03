@@ -9,9 +9,7 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Button,
-  Image,
-  Grid
+  Image
 } from '@chakra-ui/react';
 import React, { useMemo } from 'react';
 import ChatController, { type ChatControllerProps } from './ChatController';

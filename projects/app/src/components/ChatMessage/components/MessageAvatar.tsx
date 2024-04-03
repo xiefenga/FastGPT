@@ -1,9 +1,16 @@
 import React from 'react';
 import { Box } from '@chakra-ui/react';
 import { useTheme } from '@chakra-ui/system';
-import Avatar from '@/components/Avatar';
 
-const ChatAvatar = ({ src, type }: { src?: string; type: 'Human' | 'AI' }) => {
+import Avatar from '@/components/Avatar';
+import { MessageRoleEnum } from '@/components/ChatMessage/constants';
+
+interface MessageAvatarProps {
+  src: string;
+  role: MessageRoleEnum;
+}
+
+const MessageAvatar: React.FC<MessageAvatarProps> = ({ src, role }) => {
   const theme = useTheme();
   return (
     <Box
@@ -13,11 +20,11 @@ const ChatAvatar = ({ src, type }: { src?: string; type: 'Human' | 'AI' }) => {
       borderRadius={'sm'}
       border={theme.borders.base}
       boxShadow={'0 0 5px rgba(0,0,0,0.1)'}
-      bg={type === 'Human' ? 'white' : 'primary.50'}
+      bg={role === MessageRoleEnum.USER ? 'white' : 'primary.50'}
     >
       <Avatar src={src} w={'100%'} h={'100%'} />
     </Box>
   );
 };
 
-export default React.memo(ChatAvatar);
+export default React.memo(MessageAvatar);
