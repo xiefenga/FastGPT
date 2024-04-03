@@ -72,89 +72,87 @@ const Detail = ({ name, currentTab }: PageProps) => {
   });
 
   return (
-    <>
+    <PageContainer>
       <Head>
         <title>{knowledgeBaseDetail.name}</title>
       </Head>
-      <PageContainer>
-        <MyBox display={'flex'} flexDirection={['column', 'row']} h={'100%'} pt={[4, 0]}>
-          {isPc ? (
-            <Flex
-              flexDirection={'column'}
-              py={4}
-              h={'100%'}
-              flex={'0 0 200px'}
-              borderRight={theme.borders.base}
-            >
-              <Box px={4} borderBottom={'1px'} borderColor={'myGray.200'} pb={4} mb={4}>
-                <Flex mb={4} alignItems={'center'}>
-                  <Avatar src={knowledgeBaseDetail.icon} w={'34px'} borderRadius={'md'} />
-                  <Box ml={2}>
-                    <Box fontWeight={'bold'}>{knowledgeBaseDetail.name}</Box>
-                  </Box>
-                </Flex>
-                <Flex alignItems={'center'} pl={2} justifyContent={'space-between'}>
-                  <DatasetTypeTag type={DatasetTypeEnum.dataset} />
-                </Flex>
-              </Box>
-              <SideTabs
-                px={4}
-                flex={1}
-                mx={'auto'}
-                w={'100%'}
-                list={tabList}
-                activeId={currentTab}
-                onChange={(e: any) => {
-                  setCurrentTab(e);
-                }}
-              />
-              <Flex
-                alignItems={'center'}
-                cursor={'pointer'}
-                py={2}
-                px={3}
-                borderRadius={'md'}
-                _hover={{ bg: 'myGray.100' }}
-                onClick={() => router.replace('/knowledge-base')}
-              >
-                <IconButton
-                  mr={3}
-                  icon={<MyIcon name={'common/backFill'} w={'18px'} color={'primary.500'} />}
-                  bg={'white'}
-                  boxShadow={'1px 1px 9px rgba(0,0,0,0.15)'}
-                  size={'smSquare'}
-                  borderRadius={'50%'}
-                  aria-label={''}
-                />
-                {t('core.dataset.All Dataset')}
+      <MyBox display={'flex'} flexDirection={['column', 'row']} h={'100%'} pt={[4, 0]}>
+        {isPc ? (
+          <Flex
+            flexDirection={'column'}
+            py={4}
+            h={'100%'}
+            flex={'0 0 200px'}
+            borderRight={theme.borders.base}
+          >
+            <Box px={4} borderBottom={'1px'} borderColor={'myGray.200'} pb={4} mb={4}>
+              <Flex mb={4} alignItems={'center'}>
+                <Avatar src={knowledgeBaseDetail.icon} w={'34px'} borderRadius={'md'} />
+                <Box ml={2}>
+                  <Box fontWeight={'bold'}>{knowledgeBaseDetail.name}</Box>
+                </Box>
               </Flex>
-            </Flex>
-          ) : (
-            <Box mb={3}>
-              <Tabs
-                m={'auto'}
-                w={'260px'}
-                size={isPc ? 'md' : 'sm'}
-                list={tabList.map((item) => ({
-                  id: item.id,
-                  label: item.label
-                }))}
-                activeId={currentTab}
-                onChange={(e: any) => setCurrentTab(e)}
-              />
+              <Flex alignItems={'center'} pl={2} justifyContent={'space-between'}>
+                <DatasetTypeTag type={DatasetTypeEnum.dataset} />
+              </Flex>
             </Box>
-          )}
-
-          <Box flex={'1 0 0'} pb={0}>
-            {currentTab === TabEnum.files && <CollectionCard name={name} />}
-            {currentTab === TabEnum.dataCard && <DataCard />}
-            {currentTab === TabEnum.test && <Test datasetId={name} />}
-            {currentTab === TabEnum.info && <Info />}
-            {currentTab === TabEnum.import && <Import />}
+            <SideTabs
+              px={4}
+              flex={1}
+              mx={'auto'}
+              w={'100%'}
+              list={tabList}
+              activeId={currentTab}
+              onChange={(e: any) => {
+                setCurrentTab(e);
+              }}
+            />
+            <Flex
+              alignItems={'center'}
+              cursor={'pointer'}
+              py={2}
+              px={3}
+              borderRadius={'md'}
+              _hover={{ bg: 'myGray.100' }}
+              onClick={() => router.replace('/knowledge-base')}
+            >
+              <IconButton
+                mr={3}
+                icon={<MyIcon name={'common/backFill'} w={'18px'} color={'primary.500'} />}
+                bg={'white'}
+                boxShadow={'1px 1px 9px rgba(0,0,0,0.15)'}
+                size={'smSquare'}
+                borderRadius={'50%'}
+                aria-label={''}
+              />
+              {t('core.dataset.All Dataset')}
+            </Flex>
+          </Flex>
+        ) : (
+          <Box mb={3}>
+            <Tabs
+              m={'auto'}
+              w={'260px'}
+              size={isPc ? 'md' : 'sm'}
+              list={tabList.map((item) => ({
+                id: item.id,
+                label: item.label
+              }))}
+              activeId={currentTab}
+              onChange={(e: any) => setCurrentTab(e)}
+            />
           </Box>
-        </MyBox>
-      </PageContainer>
-    </>
+        )}
+
+        <Box flex={'1 0 0'} pb={0}>
+          {currentTab === TabEnum.files && <CollectionCard name={name} />}
+          {currentTab === TabEnum.dataCard && <DataCard />}
+          {currentTab === TabEnum.test && <Test datasetId={name} />}
+          {currentTab === TabEnum.info && <Info />}
+          {currentTab === TabEnum.import && <Import />}
+        </Box>
+      </MyBox>
+    </PageContainer>
   );
 };
 

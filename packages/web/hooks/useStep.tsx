@@ -1,12 +1,10 @@
+import React, { useCallback } from 'react';
 import {
   Box,
   Flex,
-  IconButton,
   Step,
-  StepDescription,
   StepIcon,
   StepIndicator,
-  StepNumber,
   StepSeparator,
   StepStatus,
   StepTitle,
@@ -14,7 +12,6 @@ import {
   css,
   useSteps
 } from '@chakra-ui/react';
-import React, { useCallback, useState } from 'react';
 
 export const useMyStep = ({
   defaultStep = 0,

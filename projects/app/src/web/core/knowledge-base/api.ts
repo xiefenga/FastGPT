@@ -38,3 +38,12 @@ export const getKnowledgeBaseFiles = (params: { knowledge_base_name: string }) =
 // 下载知识库中文件
 export const downloadKnowledgeBaseFile = (params: DownloadKnowledgeBaseParams) =>
   GET<string>('/knowledge_base/download_doc', params);
+
+// 上传文件到知识库，并/或进行向量化
+export const UpdateDocs2KnowledgeBase = (formData: FormData) => {
+  return POST('/knowledge_base/upload_docs', formData, {
+    headers: {
+      'content-type': 'multipart/form-data'
+    }
+  });
+};

@@ -18,10 +18,10 @@ import {
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 
-import { TabEnum } from '../../../constants';
 import { useImportStore, type FormType } from '../Provider';
 import { useRequest } from '@/web/common/hooks/useRequest';
 import { ImportSourceItemType } from '@/web/core/dataset/type';
+import { UpdateDocs2KnowledgeBase } from '@/web/core/knowledge-base/api';
 
 const Upload = ({ showPreviewChunks }: { showPreviewChunks: boolean }) => {
   const { t } = useTranslation();
@@ -42,6 +42,20 @@ const Upload = ({ showPreviewChunks }: { showPreviewChunks: boolean }) => {
     mutationFn: async (form: FormType) => {
       console.log(sources);
       console.log(form);
+      const formData = new FormData();
+      formData.append('to_vector_store', 'true');
+      formData.append('files', sources[0].file as File);
+      formData.append('knowledge_base_name', 'SophonsAI');
+      formData.append('zh_title_enhance', form.zh_title_enhance.toString());
+      formData.append('chunk_overlap', form.chunk_overlap.toString());
+      formData.append('chunk_size', form.chunk_size.toString());
+      formData.append('not_refresh_vs_cache', 'false');
+      formData.append('override', 'false');
+      formData.append(
+        'docs',
+        '{  "test.txt": [    {      "page_content": "custom doc",      "metadata": {},      "type": "Document"    }  ]}'
+      );
+      await UpdateDocs2KnowledgeBase(formData);
     },
     onSuccess(num) {
       if (showPreviewChunks) {
